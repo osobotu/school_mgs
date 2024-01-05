@@ -9,10 +9,34 @@ import (
 )
 
 type Querier interface {
+	CreateClass(ctx context.Context, name string) (Class, error)
+	CreateScore(ctx context.Context, arg CreateScoreParams) (Score, error)
+	CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error)
+	CreateSubject(ctx context.Context, arg CreateSubjectParams) (Subject, error)
 	CreateTeacher(ctx context.Context, arg CreateTeacherParams) (Teacher, error)
+	DeleteClass(ctx context.Context, id int32) error
+	DeleteScore(ctx context.Context, studentID int32) error
+	DeleteStudent(ctx context.Context, id int32) error
+	DeleteSubject(ctx context.Context, id int32) error
 	DeleteTeacher(ctx context.Context, id int32) error
-	GetTeacher(ctx context.Context, id int32) (Teacher, error)
+	GetClassById(ctx context.Context, id int32) (Class, error)
+	GetClassByName(ctx context.Context, name string) (Class, error)
+	GetScoreByStudentId(ctx context.Context, studentID int32) (Score, error)
+	GetScoresBySubjectId(ctx context.Context, subjectID int32) ([]Score, error)
+	GetStudentById(ctx context.Context, id int32) (Student, error)
+	GetStudentByName(ctx context.Context, firstName string) (Student, error)
+	GetSubjectById(ctx context.Context, id int32) (Subject, error)
+	GetSubjectByName(ctx context.Context, name string) (Subject, error)
+	GetTeacherById(ctx context.Context, id int32) (Teacher, error)
+	GetTeacherByName(ctx context.Context, lastName string) (Teacher, error)
+	ListClasses(ctx context.Context, arg ListClassesParams) ([]Class, error)
+	ListStudents(ctx context.Context, arg ListStudentsParams) ([]Student, error)
+	ListSubjects(ctx context.Context, arg ListSubjectsParams) ([]Subject, error)
 	ListTeachers(ctx context.Context, arg ListTeachersParams) ([]Teacher, error)
+	UpdateClass(ctx context.Context, arg UpdateClassParams) (Student, error)
+	UpdateFormMaster(ctx context.Context, arg UpdateFormMasterParams) (Class, error)
+	UpdateScoreByStudentId(ctx context.Context, arg UpdateScoreByStudentIdParams) (Score, error)
+	UpdateSubjectsList(ctx context.Context, arg UpdateSubjectsListParams) (Student, error)
 	UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (Teacher, error)
 }
 

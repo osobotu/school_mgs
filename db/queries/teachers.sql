@@ -9,9 +9,13 @@ INSERT INTO teachers (
     $1, $2, $3, $4, $5
 ) RETURNING *;
 
--- name: GetTeacher :one
+-- name: GetTeacherById :one
 SELECT * FROM teachers
 WHERE id = $1 LIMIT 1;
+
+-- name: GetTeacherByName :one
+SELECT * FROM teachers
+WHERE last_name = $1 LIMIT 1;
 
 -- name: ListTeachers :many
 SELECT * FROM teachers

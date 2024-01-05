@@ -62,13 +62,33 @@ func (q *Queries) DeleteTeacher(ctx context.Context, id int32) error {
 	return err
 }
 
-const getTeacher = `-- name: GetTeacher :one
+const getTeacherById = `-- name: GetTeacherById :one
 SELECT id, first_name, last_name, middle_name, subject_id, classes, created_at FROM teachers
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetTeacher(ctx context.Context, id int32) (Teacher, error) {
-	row := q.db.QueryRowContext(ctx, getTeacher, id)
+func (q *Queries) GetTeacherById(ctx context.Context, id int32) (Teacher, error) {
+	row := q.db.QueryRowContext(ctx, getTeacherById, id)
+	var i Teacher
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.MiddleName,
+		&i.SubjectID,
+		pq.Array(&i.Classes),
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getTeacherByName = `-- name: GetTeacherByName :one
+SELECT id, first_name, last_name, middle_name, subject_id, classes, created_at FROM teachers
+WHERE last_name = $1 LIMIT 1
+`
+
+func (q *Queries) GetTeacherByName(ctx context.Context, lastName string) (Teacher, error) {
+	row := q.db.QueryRowContext(ctx, getTeacherByName, lastName)
 	var i Teacher
 	err := row.Scan(
 		&i.ID,
