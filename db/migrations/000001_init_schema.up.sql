@@ -1,46 +1,46 @@
 CREATE TABLE "teachers" (
-  "id" integer PRIMARY KEY,
+  "id" serial PRIMARY KEY,
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "middle_name" varchar,
-  "subject_id" integer NOT NULL,
-  "classes" integer[] NOT NULL,
+  "subject_id" int NOT NULL,
+  "classes" int[] NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "subjects" (
-  "id" integer PRIMARY KEY,
+  "id" serial PRIMARY KEY,
   "name" varchar NOT NULL,
-  "classes" integer[] NOT NULL,
+  "classes" int[] NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "classes" (
-  "id" integer PRIMARY KEY,
+  "id" serial PRIMARY KEY,
   "name" varchar NOT NULL,
-  "form_master_id" integer,
+  "form_master_id" int,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "students" (
-  "id" integer PRIMARY KEY,
+  "id" serial PRIMARY KEY,
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "middle_name" varchar,
-  "class_id" integer NOT NULL,
-  "subjects" integer[] NOT NULL,
+  "class_id" int NOT NULL,
+  "subjects" int[] NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "scores" (
-  "student_id" integer NOT NULL,
-  "subject_id" integer NOT NULL,
-  "first_term_assessment" integer,
-  "first_term_exam" integer,
-  "second_term_assessment" integer,
-  "second_term_exam" integer,
-  "third_term_assessment" integer,
-  "third_term_exam" integer,
+  "student_id" int NOT NULL,
+  "subject_id" int NOT NULL,
+  "first_term_assessment" int,
+  "first_term_exam" int,
+  "second_term_assessment" int,
+  "second_term_exam" int,
+  "third_term_assessment" int,
+  "third_term_exam" int,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now()),
   PRIMARY KEY (student_id, subject_id)
