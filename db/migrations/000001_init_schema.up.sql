@@ -3,23 +3,26 @@ CREATE TABLE "teachers" (
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "middle_name" varchar,
-  "subject_id" int NOT NULL,
-  "classes" int[] NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
+  "subject_id" integer NOT NULL,
+  "classes" integer[] NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "subjects" (
   "id" serial PRIMARY KEY,
   "name" varchar NOT NULL,
-  "classes" int[] NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
+  "classes" integer[] NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "classes" (
   "id" serial PRIMARY KEY,
   "name" varchar NOT NULL,
-  "form_master_id" int,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
+  "form_master_id" integer,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "students" (
@@ -27,23 +30,47 @@ CREATE TABLE "students" (
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "middle_name" varchar,
-  "class_id" int NOT NULL,
-  "subjects" int[] NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
+  "class_id" integer[] NOT NULL,
+  "subjects" integer[] NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "terms" (
+  "id" serial PRIMARY KEY,
+  "name" varchar NOT NULL,
+  "number" integer NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "term_scores" (
+  "id" serial PRIMARY KEY,
+  "assessment" float,
+  "exam" float,
+  "subject_id" integer NOT NULL,
+  "term_id" integer NOT NULL,
+  "session_id" integer NOT NULL,
+  "class_id" integer NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "sessions" (
+  "id" serial PRIMARY KEY,
+  "session" varchar NOT NULL,
+  "start_date" timestamptz,
+  "end_date" timestamptz,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "scores" (
-  "student_id" int NOT NULL,
-  "subject_id" int NOT NULL,
-  "first_term_assessment" int,
-  "first_term_exam" int,
-  "second_term_assessment" int,
-  "second_term_exam" int,
-  "third_term_assessment" int,
-  "third_term_exam" int,
+  "student_id" integer NOT NULL,
+  "term_scores_id" integer NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now()),
-  PRIMARY KEY (student_id, subject_id)
+  PRIMARY KEY ("student_id", "term_scores_id")
 );
 
 CREATE INDEX ON "teachers" ("first_name");
@@ -56,18 +83,24 @@ CREATE INDEX ON "students" ("first_name");
 
 CREATE INDEX ON "students" ("last_name");
 
-CREATE INDEX ON "students" ("class_id");
-
-CREATE UNIQUE INDEX ON "scores" ("student_id", "subject_id");
+CREATE UNIQUE INDEX ON "scores" ("student_id", "term_scores_id");
 
 COMMENT ON COLUMN "subjects"."classes" IS 'These are the classes that can take this subject';
+
+COMMENT ON COLUMN "students"."class_id" IS 'A student can only belong to one class, ensure this array has a length of one';
 
 ALTER TABLE "teachers" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id");
 
 ALTER TABLE "classes" ADD FOREIGN KEY ("form_master_id") REFERENCES "teachers" ("id");
 
-ALTER TABLE "students" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id");
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id");
+
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("term_id") REFERENCES "terms" ("id");
+
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("session_id") REFERENCES "sessions" ("id");
+
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id");
 
 ALTER TABLE "scores" ADD FOREIGN KEY ("student_id") REFERENCES "students" ("id");
 
-ALTER TABLE "scores" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id");
+ALTER TABLE "scores" ADD FOREIGN KEY ("term_scores_id") REFERENCES "term_scores" ("id");

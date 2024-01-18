@@ -14,7 +14,7 @@ func TestCreateSubject(t *testing.T) {
 	classes := make([]int32, 1)
 
 	arg := CreateSubjectParams{
-		Name:    "UNASSIGNED",
+		Name:    utils.RandomString(5),
 		Classes: classes,
 	}
 
@@ -99,4 +99,5 @@ func createTestSubject(t *testing.T) Subject {
 func compareSubjects(t *testing.T, subject1, subject2 Subject) {
 	require.Equal(t, subject1.Name, subject2.Name)
 	require.Equal(t, subject1.Classes, subject2.Classes)
+	require.Equal(t, subject1.ID, subject2.ID)
 }

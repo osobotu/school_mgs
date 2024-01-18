@@ -7,60 +7,31 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"time"
 )
 
 const createScore = `-- name: CreateScore :one
 INSERT INTO scores (
     student_id,
-    subject_id,
-    first_term_assessment,
-    first_term_exam,
-    second_term_assessment,
-    second_term_exam,
-    third_term_assessment,
-    third_term_exam,
+    term_scores_id,
     updated_at
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9
-) RETURNING student_id, subject_id, first_term_assessment, first_term_exam, second_term_assessment, second_term_exam, third_term_assessment, third_term_exam, created_at, updated_at
+    $1, $2, $3
+) RETURNING student_id, term_scores_id, created_at, updated_at
 `
 
 type CreateScoreParams struct {
-	StudentID            int32         `json:"student_id"`
-	SubjectID            int32         `json:"subject_id"`
-	FirstTermAssessment  sql.NullInt32 `json:"first_term_assessment"`
-	FirstTermExam        sql.NullInt32 `json:"first_term_exam"`
-	SecondTermAssessment sql.NullInt32 `json:"second_term_assessment"`
-	SecondTermExam       sql.NullInt32 `json:"second_term_exam"`
-	ThirdTermAssessment  sql.NullInt32 `json:"third_term_assessment"`
-	ThirdTermExam        sql.NullInt32 `json:"third_term_exam"`
-	UpdatedAt            time.Time     `json:"updated_at"`
+	StudentID    int32     `json:"student_id"`
+	TermScoresID int32     `json:"term_scores_id"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 func (q *Queries) CreateScore(ctx context.Context, arg CreateScoreParams) (Score, error) {
-	row := q.db.QueryRowContext(ctx, createScore,
-		arg.StudentID,
-		arg.SubjectID,
-		arg.FirstTermAssessment,
-		arg.FirstTermExam,
-		arg.SecondTermAssessment,
-		arg.SecondTermExam,
-		arg.ThirdTermAssessment,
-		arg.ThirdTermExam,
-		arg.UpdatedAt,
-	)
+	row := q.db.QueryRowContext(ctx, createScore, arg.StudentID, arg.TermScoresID, arg.UpdatedAt)
 	var i Score
 	err := row.Scan(
 		&i.StudentID,
-		&i.SubjectID,
-		&i.FirstTermAssessment,
-		&i.FirstTermExam,
-		&i.SecondTermAssessment,
-		&i.SecondTermExam,
-		&i.ThirdTermAssessment,
-		&i.ThirdTermExam,
+		&i.TermScoresID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -77,7 +48,7 @@ func (q *Queries) DeleteScore(ctx context.Context, studentID int32) error {
 }
 
 const getScoreByStudentId = `-- name: GetScoreByStudentId :one
-SELECT student_id, subject_id, first_term_assessment, first_term_exam, second_term_assessment, second_term_exam, third_term_assessment, third_term_exam, created_at, updated_at FROM scores
+SELECT student_id, term_scores_id, created_at, updated_at FROM scores
 WHERE student_id = $1 LIMIT 1
 `
 
@@ -86,103 +57,7 @@ func (q *Queries) GetScoreByStudentId(ctx context.Context, studentID int32) (Sco
 	var i Score
 	err := row.Scan(
 		&i.StudentID,
-		&i.SubjectID,
-		&i.FirstTermAssessment,
-		&i.FirstTermExam,
-		&i.SecondTermAssessment,
-		&i.SecondTermExam,
-		&i.ThirdTermAssessment,
-		&i.ThirdTermExam,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getScoresBySubjectId = `-- name: GetScoresBySubjectId :many
-SELECT student_id, subject_id, first_term_assessment, first_term_exam, second_term_assessment, second_term_exam, third_term_assessment, third_term_exam, created_at, updated_at FROM scores
-WHERE subject_id = $1
-`
-
-func (q *Queries) GetScoresBySubjectId(ctx context.Context, subjectID int32) ([]Score, error) {
-	rows, err := q.db.QueryContext(ctx, getScoresBySubjectId, subjectID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Score{}
-	for rows.Next() {
-		var i Score
-		if err := rows.Scan(
-			&i.StudentID,
-			&i.SubjectID,
-			&i.FirstTermAssessment,
-			&i.FirstTermExam,
-			&i.SecondTermAssessment,
-			&i.SecondTermExam,
-			&i.ThirdTermAssessment,
-			&i.ThirdTermExam,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const updateScoreByStudentId = `-- name: UpdateScoreByStudentId :one
-UPDATE scores 
-SET first_term_assessment = $2,
-    first_term_exam = $3,
-    second_term_assessment = $4,
-    second_term_exam = $5,
-    third_term_assessment = $6,
-    third_term_exam = $7,
-    updated_at = $8
-WHERE student_id = $1
-RETURNING student_id, subject_id, first_term_assessment, first_term_exam, second_term_assessment, second_term_exam, third_term_assessment, third_term_exam, created_at, updated_at
-`
-
-type UpdateScoreByStudentIdParams struct {
-	StudentID            int32         `json:"student_id"`
-	FirstTermAssessment  sql.NullInt32 `json:"first_term_assessment"`
-	FirstTermExam        sql.NullInt32 `json:"first_term_exam"`
-	SecondTermAssessment sql.NullInt32 `json:"second_term_assessment"`
-	SecondTermExam       sql.NullInt32 `json:"second_term_exam"`
-	ThirdTermAssessment  sql.NullInt32 `json:"third_term_assessment"`
-	ThirdTermExam        sql.NullInt32 `json:"third_term_exam"`
-	UpdatedAt            time.Time     `json:"updated_at"`
-}
-
-func (q *Queries) UpdateScoreByStudentId(ctx context.Context, arg UpdateScoreByStudentIdParams) (Score, error) {
-	row := q.db.QueryRowContext(ctx, updateScoreByStudentId,
-		arg.StudentID,
-		arg.FirstTermAssessment,
-		arg.FirstTermExam,
-		arg.SecondTermAssessment,
-		arg.SecondTermExam,
-		arg.ThirdTermAssessment,
-		arg.ThirdTermExam,
-		arg.UpdatedAt,
-	)
-	var i Score
-	err := row.Scan(
-		&i.StudentID,
-		&i.SubjectID,
-		&i.FirstTermAssessment,
-		&i.FirstTermExam,
-		&i.SecondTermAssessment,
-		&i.SecondTermExam,
-		&i.ThirdTermAssessment,
-		&i.ThirdTermExam,
+		&i.TermScoresID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

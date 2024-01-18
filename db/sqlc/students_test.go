@@ -51,10 +51,11 @@ func TestListStudents(t *testing.T) {
 }
 
 func TestUpdateClass(t *testing.T) {
+	classID := make([]int32, 1)
 	student1 := createTestStudent(t)
 	arg := UpdateClassParams{
 		ID:      student1.ID,
-		ClassID: int32(utils.RandomInt(6, 10)),
+		ClassID: classID,
 	}
 	student2, err := testQueries.UpdateClass(context.Background(), arg)
 	require.NoError(t, err)
@@ -78,10 +79,12 @@ func TestUpdateSubjectsList(t *testing.T) {
 }
 
 func createTestStudent(t *testing.T) Student {
+	classID := make([]int32, 1)
+
 	arg := CreateStudentParams{
 		FirstName: utils.RandomString(7),
 		LastName:  utils.RandomString(7),
-		ClassID:   int32(utils.RandomInt(6, 10) + 1),
+		ClassID:   classID,
 		Subjects:  utils.RandomList(5),
 	}
 

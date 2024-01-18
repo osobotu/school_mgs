@@ -17,7 +17,7 @@ INSERT INTO subjects (
     classes
 ) VALUES (
     $1, $2
-) RETURNING id, name, classes, created_at
+) RETURNING id, name, classes, created_at, updated_at
 `
 
 type CreateSubjectParams struct {
@@ -33,6 +33,7 @@ func (q *Queries) CreateSubject(ctx context.Context, arg CreateSubjectParams) (S
 		&i.Name,
 		pq.Array(&i.Classes),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -47,7 +48,7 @@ func (q *Queries) DeleteSubject(ctx context.Context, id int32) error {
 }
 
 const getSubjectById = `-- name: GetSubjectById :one
-SELECT id, name, classes, created_at FROM subjects
+SELECT id, name, classes, created_at, updated_at FROM subjects
 WHERE id = $1 LIMIT 1
 `
 
@@ -59,12 +60,13 @@ func (q *Queries) GetSubjectById(ctx context.Context, id int32) (Subject, error)
 		&i.Name,
 		pq.Array(&i.Classes),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getSubjectByName = `-- name: GetSubjectByName :one
-SELECT id, name, classes, created_at FROM subjects 
+SELECT id, name, classes, created_at, updated_at FROM subjects 
 WHERE name = $1 LIMIT 1
 `
 
@@ -76,12 +78,13 @@ func (q *Queries) GetSubjectByName(ctx context.Context, name string) (Subject, e
 		&i.Name,
 		pq.Array(&i.Classes),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const listSubjects = `-- name: ListSubjects :many
-SELECT id, name, classes, created_at FROM subjects
+SELECT id, name, classes, created_at, updated_at FROM subjects
 ORDER by name
 LIMIT $1
 OFFSET $2
@@ -106,6 +109,7 @@ func (q *Queries) ListSubjects(ctx context.Context, arg ListSubjectsParams) ([]S
 			&i.Name,
 			pq.Array(&i.Classes),
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

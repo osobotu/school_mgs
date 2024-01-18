@@ -15,7 +15,7 @@ INSERT INTO classes (
     name
 ) VALUES (
     $1
-) RETURNING id, name, form_master_id, created_at
+) RETURNING id, name, form_master_id, created_at, updated_at
 `
 
 func (q *Queries) CreateClass(ctx context.Context, name string) (Class, error) {
@@ -26,6 +26,7 @@ func (q *Queries) CreateClass(ctx context.Context, name string) (Class, error) {
 		&i.Name,
 		&i.FormMasterID,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -40,7 +41,7 @@ func (q *Queries) DeleteClass(ctx context.Context, id int32) error {
 }
 
 const getClassById = `-- name: GetClassById :one
-SELECT id, name, form_master_id, created_at FROM classes
+SELECT id, name, form_master_id, created_at, updated_at FROM classes
 WHERE id = $1 LIMIT 1
 `
 
@@ -52,12 +53,13 @@ func (q *Queries) GetClassById(ctx context.Context, id int32) (Class, error) {
 		&i.Name,
 		&i.FormMasterID,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getClassByName = `-- name: GetClassByName :one
-SELECT id, name, form_master_id, created_at FROM classes 
+SELECT id, name, form_master_id, created_at, updated_at FROM classes 
 WHERE name = $1 LIMIT 1
 `
 
@@ -69,12 +71,13 @@ func (q *Queries) GetClassByName(ctx context.Context, name string) (Class, error
 		&i.Name,
 		&i.FormMasterID,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const listClasses = `-- name: ListClasses :many
-SELECT id, name, form_master_id, created_at FROM classes
+SELECT id, name, form_master_id, created_at, updated_at FROM classes
 ORDER by name
 LIMIT $1
 OFFSET $2
@@ -99,6 +102,7 @@ func (q *Queries) ListClasses(ctx context.Context, arg ListClassesParams) ([]Cla
 			&i.Name,
 			&i.FormMasterID,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -117,7 +121,7 @@ const updateFormMaster = `-- name: UpdateFormMaster :one
 UPDATE classes
 SET name = $2, form_master_id = $3
 WHERE id = $1
-RETURNING id, name, form_master_id, created_at
+RETURNING id, name, form_master_id, created_at, updated_at
 `
 
 type UpdateFormMasterParams struct {
@@ -134,6 +138,7 @@ func (q *Queries) UpdateFormMaster(ctx context.Context, arg UpdateFormMasterPara
 		&i.Name,
 		&i.FormMasterID,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

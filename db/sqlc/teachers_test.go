@@ -114,6 +114,8 @@ func createTestTeacher(t *testing.T) Teacher {
 func compareTeachers(t *testing.T, teacher1, teacher2 Teacher) {
 	require.Equal(t, teacher1.FirstName, teacher2.FirstName)
 	require.Equal(t, teacher1.LastName, teacher2.LastName)
+	require.Equal(t, teacher1.MiddleName, teacher2.MiddleName)
 	require.Equal(t, teacher1.SubjectID, teacher2.SubjectID)
 	require.Equal(t, teacher1.Classes, teacher2.Classes)
+	require.Equal(t, teacher1.ID, teacher2.ID)
 }

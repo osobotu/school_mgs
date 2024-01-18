@@ -14,19 +14,23 @@ type Class struct {
 	Name         string        `json:"name"`
 	FormMasterID sql.NullInt32 `json:"form_master_id"`
 	CreatedAt    time.Time     `json:"created_at"`
+	UpdatedAt    time.Time     `json:"updated_at"`
 }
 
 type Score struct {
-	StudentID            int32         `json:"student_id"`
-	SubjectID            int32         `json:"subject_id"`
-	FirstTermAssessment  sql.NullInt32 `json:"first_term_assessment"`
-	FirstTermExam        sql.NullInt32 `json:"first_term_exam"`
-	SecondTermAssessment sql.NullInt32 `json:"second_term_assessment"`
-	SecondTermExam       sql.NullInt32 `json:"second_term_exam"`
-	ThirdTermAssessment  sql.NullInt32 `json:"third_term_assessment"`
-	ThirdTermExam        sql.NullInt32 `json:"third_term_exam"`
-	CreatedAt            time.Time     `json:"created_at"`
-	UpdatedAt            time.Time     `json:"updated_at"`
+	StudentID    int32     `json:"student_id"`
+	TermScoresID int32     `json:"term_scores_id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type Session struct {
+	ID        int32        `json:"id"`
+	Session   string       `json:"session"`
+	StartDate sql.NullTime `json:"start_date"`
+	EndDate   sql.NullTime `json:"end_date"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt time.Time    `json:"updated_at"`
 }
 
 type Student struct {
@@ -34,9 +38,11 @@ type Student struct {
 	FirstName  string         `json:"first_name"`
 	LastName   string         `json:"last_name"`
 	MiddleName sql.NullString `json:"middle_name"`
-	ClassID    int32          `json:"class_id"`
-	Subjects   []int32        `json:"subjects"`
-	CreatedAt  time.Time      `json:"created_at"`
+	// A student can only belong to one class, ensure this array has a length of one
+	ClassID   []int32   `json:"class_id"`
+	Subjects  []int32   `json:"subjects"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Subject struct {
@@ -45,6 +51,7 @@ type Subject struct {
 	// These are the classes that can take this subject
 	Classes   []int32   `json:"classes"`
 	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Teacher struct {
@@ -55,4 +62,25 @@ type Teacher struct {
 	SubjectID  int32          `json:"subject_id"`
 	Classes    []int32        `json:"classes"`
 	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
+}
+
+type Term struct {
+	ID        int32     `json:"id"`
+	Name      string    `json:"name"`
+	Number    int32     `json:"number"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type TermScore struct {
+	ID         int32           `json:"id"`
+	Assessment sql.NullFloat64 `json:"assessment"`
+	Exam       sql.NullFloat64 `json:"exam"`
+	SubjectID  int32           `json:"subject_id"`
+	TermID     int32           `json:"term_id"`
+	SessionID  int32           `json:"session_id"`
+	ClassID    int32           `json:"class_id"`
+	CreatedAt  time.Time       `json:"created_at"`
+	UpdatedAt  time.Time       `json:"updated_at"`
 }

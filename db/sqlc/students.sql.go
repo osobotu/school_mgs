@@ -19,13 +19,13 @@ INSERT INTO students (
     subjects
 ) VALUES (
     $1, $2, $3, $4
-) RETURNING id, first_name, last_name, middle_name, class_id, subjects, created_at
+) RETURNING id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at
 `
 
 type CreateStudentParams struct {
 	FirstName string  `json:"first_name"`
 	LastName  string  `json:"last_name"`
-	ClassID   int32   `json:"class_id"`
+	ClassID   []int32 `json:"class_id"`
 	Subjects  []int32 `json:"subjects"`
 }
 
@@ -33,7 +33,7 @@ func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (S
 	row := q.db.QueryRowContext(ctx, createStudent,
 		arg.FirstName,
 		arg.LastName,
-		arg.ClassID,
+		pq.Array(arg.ClassID),
 		pq.Array(arg.Subjects),
 	)
 	var i Student
@@ -42,9 +42,10 @@ func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (S
 		&i.FirstName,
 		&i.LastName,
 		&i.MiddleName,
-		&i.ClassID,
+		pq.Array(&i.ClassID),
 		pq.Array(&i.Subjects),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -59,7 +60,7 @@ func (q *Queries) DeleteStudent(ctx context.Context, id int32) error {
 }
 
 const getStudentById = `-- name: GetStudentById :one
-SELECT id, first_name, last_name, middle_name, class_id, subjects, created_at FROM students
+SELECT id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at FROM students
 WHERE id = $1 LIMIT 1
 `
 
@@ -71,15 +72,16 @@ func (q *Queries) GetStudentById(ctx context.Context, id int32) (Student, error)
 		&i.FirstName,
 		&i.LastName,
 		&i.MiddleName,
-		&i.ClassID,
+		pq.Array(&i.ClassID),
 		pq.Array(&i.Subjects),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getStudentByName = `-- name: GetStudentByName :one
-SELECT id, first_name, last_name, middle_name, class_id, subjects, created_at FROM students
+SELECT id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at FROM students
 WHERE first_name = $1 LIMIT 1
 `
 
@@ -91,15 +93,16 @@ func (q *Queries) GetStudentByName(ctx context.Context, firstName string) (Stude
 		&i.FirstName,
 		&i.LastName,
 		&i.MiddleName,
-		&i.ClassID,
+		pq.Array(&i.ClassID),
 		pq.Array(&i.Subjects),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const listStudents = `-- name: ListStudents :many
-SELECT id, first_name, last_name, middle_name, class_id, subjects, created_at FROM students
+SELECT id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at FROM students
 ORDER by first_name
 LIMIT $1
 OFFSET $2
@@ -124,9 +127,10 @@ func (q *Queries) ListStudents(ctx context.Context, arg ListStudentsParams) ([]S
 			&i.FirstName,
 			&i.LastName,
 			&i.MiddleName,
-			&i.ClassID,
+			pq.Array(&i.ClassID),
 			pq.Array(&i.Subjects),
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -145,25 +149,26 @@ const updateClass = `-- name: UpdateClass :one
 UPDATE students
 SET class_id = $2
 WHERE id = $1
-RETURNING id, first_name, last_name, middle_name, class_id, subjects, created_at
+RETURNING id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at
 `
 
 type UpdateClassParams struct {
-	ID      int32 `json:"id"`
-	ClassID int32 `json:"class_id"`
+	ID      int32   `json:"id"`
+	ClassID []int32 `json:"class_id"`
 }
 
 func (q *Queries) UpdateClass(ctx context.Context, arg UpdateClassParams) (Student, error) {
-	row := q.db.QueryRowContext(ctx, updateClass, arg.ID, arg.ClassID)
+	row := q.db.QueryRowContext(ctx, updateClass, arg.ID, pq.Array(arg.ClassID))
 	var i Student
 	err := row.Scan(
 		&i.ID,
 		&i.FirstName,
 		&i.LastName,
 		&i.MiddleName,
-		&i.ClassID,
+		pq.Array(&i.ClassID),
 		pq.Array(&i.Subjects),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -172,7 +177,7 @@ const updateSubjectsList = `-- name: UpdateSubjectsList :one
 UPDATE students
 SET subjects = $2
 WHERE id = $1
-RETURNING id, first_name, last_name, middle_name, class_id, subjects, created_at
+RETURNING id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at
 `
 
 type UpdateSubjectsListParams struct {
@@ -188,9 +193,10 @@ func (q *Queries) UpdateSubjectsList(ctx context.Context, arg UpdateSubjectsList
 		&i.FirstName,
 		&i.LastName,
 		&i.MiddleName,
-		&i.ClassID,
+		pq.Array(&i.ClassID),
 		pq.Array(&i.Subjects),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

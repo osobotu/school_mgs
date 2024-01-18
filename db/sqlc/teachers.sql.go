@@ -21,7 +21,7 @@ INSERT INTO teachers (
     classes
 ) VALUES (
     $1, $2, $3, $4, $5
-) RETURNING id, first_name, last_name, middle_name, subject_id, classes, created_at
+) RETURNING id, first_name, last_name, middle_name, subject_id, classes, created_at, updated_at
 `
 
 type CreateTeacherParams struct {
@@ -49,6 +49,7 @@ func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (T
 		&i.SubjectID,
 		pq.Array(&i.Classes),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -63,7 +64,7 @@ func (q *Queries) DeleteTeacher(ctx context.Context, id int32) error {
 }
 
 const getTeacherById = `-- name: GetTeacherById :one
-SELECT id, first_name, last_name, middle_name, subject_id, classes, created_at FROM teachers
+SELECT id, first_name, last_name, middle_name, subject_id, classes, created_at, updated_at FROM teachers
 WHERE id = $1 LIMIT 1
 `
 
@@ -78,12 +79,13 @@ func (q *Queries) GetTeacherById(ctx context.Context, id int32) (Teacher, error)
 		&i.SubjectID,
 		pq.Array(&i.Classes),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getTeacherByName = `-- name: GetTeacherByName :one
-SELECT id, first_name, last_name, middle_name, subject_id, classes, created_at FROM teachers
+SELECT id, first_name, last_name, middle_name, subject_id, classes, created_at, updated_at FROM teachers
 WHERE last_name = $1 LIMIT 1
 `
 
@@ -98,12 +100,13 @@ func (q *Queries) GetTeacherByName(ctx context.Context, lastName string) (Teache
 		&i.SubjectID,
 		pq.Array(&i.Classes),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const listTeachers = `-- name: ListTeachers :many
-SELECT id, first_name, last_name, middle_name, subject_id, classes, created_at FROM teachers
+SELECT id, first_name, last_name, middle_name, subject_id, classes, created_at, updated_at FROM teachers
 ORDER BY id
 LIMIT $1
 OFFSET $2
@@ -131,6 +134,7 @@ func (q *Queries) ListTeachers(ctx context.Context, arg ListTeachersParams) ([]T
 			&i.SubjectID,
 			pq.Array(&i.Classes),
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -149,7 +153,7 @@ const updateTeacher = `-- name: UpdateTeacher :one
 UPDATE teachers
 SET first_name = $2, last_name = $3, middle_name = $4, subject_id = $5, classes = $6
 WHERE id = $1
-RETURNING id, first_name, last_name, middle_name, subject_id, classes, created_at
+RETURNING id, first_name, last_name, middle_name, subject_id, classes, created_at, updated_at
 `
 
 type UpdateTeacherParams struct {
@@ -179,6 +183,7 @@ func (q *Queries) UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (T
 		&i.SubjectID,
 		pq.Array(&i.Classes),
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
