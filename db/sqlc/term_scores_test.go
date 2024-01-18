@@ -63,10 +63,10 @@ func TestListTermScoresForSubjectAndClass(t *testing.T) {
 
 	for _, termScore := range termScores {
 		require.NotEmpty(t, termScore)
-		// testQueries.RunCleaners(t, &termScore)
+		testQueries.RunCleaners(t, &termScore)
 	}
 
-	// testQueries.RunCleaners(t, &subject, &class)
+	testQueries.RunCleaners(t, &subject, &class)
 
 }
 
