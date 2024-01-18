@@ -71,7 +71,8 @@ func TestListClass(t *testing.T) {
 func TestUpdateFormMaster(t *testing.T) {
 	class1 := createTestClass(t)
 	var formMasterId sql.NullInt32
-	formMasterId.Scan(1)
+	teacher := createTestTeacher(t)
+	formMasterId.Scan(teacher.ID)
 	arg := UpdateFormMasterParams{
 		ID:           class1.ID,
 		Name:         class1.Name,
@@ -84,7 +85,7 @@ func TestUpdateFormMaster(t *testing.T) {
 	require.Equal(t, arg.FormMasterID, class2.FormMasterID)
 	require.Equal(t, arg.Name, class2.Name)
 
-	testQueries.RunCleaners(t, &class1, &class2)
+	testQueries.RunCleaners(t, &class1, &class2, &teacher)
 }
 
 func createTestClass(t *testing.T) Class {
