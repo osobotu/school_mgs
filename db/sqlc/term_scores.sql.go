@@ -91,6 +91,7 @@ func (q *Queries) GetTermScoreById(ctx context.Context, id int32) (TermScore, er
 const listTermScoresForSubjectAndClass = `-- name: ListTermScoresForSubjectAndClass :many
 SELECT id, assessment, exam, subject_id, term_id, session_id, class_id, created_at, updated_at FROM term_scores
 WHERE subject_id = $3 AND class_id = $4
+ORDER BY id
 LIMIT $1
 OFFSET $2
 `

@@ -26,6 +26,7 @@ DELETE FROM term_scores WHERE id = $1;
 -- name: ListTermScoresForSubjectAndClass :many
 SELECT * FROM term_scores
 WHERE subject_id = $3 AND class_id = $4
+ORDER BY id
 LIMIT $1
 OFFSET $2;
 
