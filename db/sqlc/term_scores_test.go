@@ -10,7 +10,8 @@ import (
 )
 
 func TestCreateTermScore(t *testing.T) {
-	createTestTermScore(t)
+	termScore := createTestTermScore(t)
+	testQueries.RunCleaners(t, &termScore)
 }
 
 func TestDeleteTermScore(t *testing.T) {
@@ -22,6 +23,8 @@ func TestDeleteTermScore(t *testing.T) {
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, termScore2)
+
+	testQueries.RunCleaners(t, &termScore1, &termScore2)
 }
 
 func TestGetTermScoreByID(t *testing.T) {
@@ -31,6 +34,8 @@ func TestGetTermScoreByID(t *testing.T) {
 	require.NotEmpty(t, termScore2)
 
 	compareTermScores(t, termScore1, termScore2)
+
+	testQueries.RunCleaners(t, &termScore1, &termScore2)
 }
 
 func TestListTermScoresForSubjectAndClass(t *testing.T) {
@@ -52,6 +57,7 @@ func TestListTermScoresForSubjectAndClass(t *testing.T) {
 
 	for _, termScore := range termScores {
 		require.NotEmpty(t, termScore)
+		testQueries.RunCleaners(t, &termScore)
 	}
 
 }
@@ -76,6 +82,8 @@ func TestUpdateScoreById(t *testing.T) {
 	require.Equal(t, arg.Assessment, termScore2.Assessment)
 	require.Equal(t, arg.Exam, termScore2.Exam)
 	require.Equal(t, arg.UpdatedAt, termScore2.UpdatedAt)
+
+	testQueries.RunCleaners(t, &termScore1, &termScore2)
 }
 
 func createTestTermScore(t *testing.T) TermScore {
@@ -84,14 +92,19 @@ func createTestTermScore(t *testing.T) TermScore {
 	var exam sql.NullFloat64
 	exam.Scan(45.0)
 
-	const demoId = 1
+	// const demoId = 1
+	subject := createTestSubject(t)
+	term := createTestTerm(t)
+	session := createTestSession(t)
+	class := createTestClass(t)
+
 	arg := CreateTermScoreParams{
 		Assessment: ass,
 		Exam:       exam,
-		SubjectID:  demoId,
-		TermID:     demoId,
-		SessionID:  demoId,
-		ClassID:    demoId,
+		SubjectID:  subject.ID,
+		TermID:     term.ID,
+		SessionID:  session.ID,
+		ClassID:    class.ID,
 	}
 
 	termScore, err := testQueries.CreateTermScore(context.Background(), arg)
@@ -107,6 +120,8 @@ func createTestTermScore(t *testing.T) TermScore {
 
 	require.NotZero(t, termScore.CreatedAt)
 	require.NotZero(t, termScore.UpdatedAt)
+
+	testQueries.RunCleaners(t, &subject, &term, &session, &class)
 	return termScore
 }
 
@@ -119,4 +134,8 @@ func compareTermScores(t *testing.T, termScore1, termScore2 TermScore) {
 	require.Equal(t, termScore1.ClassID, termScore2.ClassID)
 	require.Equal(t, termScore1.TermID, termScore2.TermID)
 	require.Equal(t, termScore1.CreatedAt, termScore2.CreatedAt)
+}
+
+func (ts *TermScore) Clean() {
+	testQueries.DeleteTermScore(context.Background(), ts.ID)
 }

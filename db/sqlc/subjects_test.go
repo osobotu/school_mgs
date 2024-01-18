@@ -10,25 +10,8 @@ import (
 )
 
 func TestCreateSubject(t *testing.T) {
-
-	classes := make([]int32, 1)
-
-	arg := CreateSubjectParams{
-		Name:    utils.RandomString(5),
-		Classes: classes,
-	}
-
-	subject, err := testQueries.CreateSubject(context.Background(), arg)
-
-	require.NoError(t, err)
-	require.NotEmpty(t, subject)
-
-	require.Equal(t, arg.Name, subject.Name)
-	require.Equal(t, arg.Classes, subject.Classes)
-
-	require.NotZero(t, subject.ID)
-	require.NotZero(t, subject.CreatedAt)
-
+	subject := createTestSubject(t)
+	testQueries.RunCleaners(t, &subject)
 }
 
 func TestGetSubjectById(t *testing.T) {
@@ -38,6 +21,7 @@ func TestGetSubjectById(t *testing.T) {
 	require.NotEmpty(t, subject2)
 
 	compareSubjects(t, subject1, subject2)
+	testQueries.RunCleaners(t, &subject1, &subject2)
 }
 func TestGetSubjectByName(t *testing.T) {
 	subject1 := createTestSubject(t)
@@ -46,6 +30,7 @@ func TestGetSubjectByName(t *testing.T) {
 	require.NotEmpty(t, subject2)
 
 	compareSubjects(t, subject1, subject2)
+	testQueries.RunCleaners(t, &subject1, &subject2)
 }
 
 func TestDeleteSubject(t *testing.T) {
@@ -53,10 +38,11 @@ func TestDeleteSubject(t *testing.T) {
 	err := testQueries.DeleteSubject(context.Background(), subject1.ID)
 	require.NoError(t, err)
 
-	subject1, err = testQueries.GetSubjectById(context.Background(), subject1.ID)
+	subject2, err := testQueries.GetSubjectById(context.Background(), subject1.ID)
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
-	require.Empty(t, subject1)
+	require.Empty(t, subject2)
+	testQueries.RunCleaners(t, &subject1, &subject2)
 
 }
 
@@ -76,6 +62,7 @@ func TestListSubjects(t *testing.T) {
 
 	for _, subject := range subjects {
 		require.NotEmpty(t, subject)
+		testQueries.RunCleaners(t, &subject)
 	}
 }
 
@@ -100,4 +87,8 @@ func compareSubjects(t *testing.T, subject1, subject2 Subject) {
 	require.Equal(t, subject1.Name, subject2.Name)
 	require.Equal(t, subject1.Classes, subject2.Classes)
 	require.Equal(t, subject1.ID, subject2.ID)
+}
+
+func (s *Subject) Clean() {
+	testQueries.DeleteSubject(context.Background(), s.ID)
 }

@@ -10,7 +10,8 @@ import (
 )
 
 func TestCreateClass(t *testing.T) {
-	createTestClass(t)
+	class := createTestClass(t)
+	testQueries.RunCleaners(t, &class)
 }
 
 func TestGetClassById(t *testing.T) {
@@ -20,6 +21,7 @@ func TestGetClassById(t *testing.T) {
 	require.NotEmpty(t, class2)
 
 	compareClass(t, class1, class2)
+	testQueries.RunCleaners(t, &class1, &class2)
 
 }
 
@@ -30,6 +32,7 @@ func TestGetClassByName(t *testing.T) {
 	require.NotEmpty(t, class2)
 
 	compareClass(t, class1, class2)
+	testQueries.RunCleaners(t, &class1, &class2)
 }
 
 func TestDeleteClass(t *testing.T) {
@@ -60,6 +63,7 @@ func TestListClass(t *testing.T) {
 
 	for _, class := range classes {
 		require.NotEmpty(t, class)
+		testQueries.RunCleaners(t, &class)
 	}
 
 }
@@ -79,6 +83,8 @@ func TestUpdateFormMaster(t *testing.T) {
 
 	require.Equal(t, arg.FormMasterID, class2.FormMasterID)
 	require.Equal(t, arg.Name, class2.Name)
+
+	testQueries.RunCleaners(t, &class1, &class2)
 }
 
 func createTestClass(t *testing.T) Class {
@@ -95,4 +101,8 @@ func createTestClass(t *testing.T) Class {
 func compareClass(t *testing.T, class1, class2 Class) {
 	require.Equal(t, class1.Name, class2.Name)
 	require.Equal(t, class1.ID, class2.ID)
+}
+
+func (c *Class) Clean() {
+	testQueries.DeleteClass(context.Background(), c.ID)
 }

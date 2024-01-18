@@ -9,7 +9,8 @@ import (
 )
 
 func TestCreateStudent(t *testing.T) {
-	createTestStudent(t)
+	student := createTestStudent(t)
+	testQueries.RunCleaners(t, &student)
 }
 
 func TestGetStudentById(t *testing.T) {
@@ -20,6 +21,8 @@ func TestGetStudentById(t *testing.T) {
 
 	compareStudents(t, student1, student2)
 
+	testQueries.RunCleaners(t, &student1, &student2)
+
 }
 func TestGetStudentByName(t *testing.T) {
 	student1 := createTestStudent(t)
@@ -28,6 +31,7 @@ func TestGetStudentByName(t *testing.T) {
 	require.NotEmpty(t, student2)
 
 	compareStudents(t, student1, student2)
+	testQueries.RunCleaners(t, &student1, &student2)
 
 }
 
@@ -47,6 +51,7 @@ func TestListStudents(t *testing.T) {
 
 	for _, student := range students {
 		require.NotEmpty(t, student)
+		testQueries.RunCleaners(t, &student)
 	}
 }
 
@@ -62,6 +67,7 @@ func TestUpdateClass(t *testing.T) {
 	require.NotEmpty(t, student2)
 
 	require.Equal(t, arg.ClassID, student2.ClassID)
+	testQueries.RunCleaners(t, &student1, &student2)
 }
 
 func TestUpdateSubjectsList(t *testing.T) {
@@ -76,6 +82,7 @@ func TestUpdateSubjectsList(t *testing.T) {
 	require.NotEmpty(t, student2)
 
 	require.Equal(t, arg.Subjects, student2.Subjects)
+	testQueries.RunCleaners(t, &student1, &student2)
 }
 
 func createTestStudent(t *testing.T) Student {
@@ -104,4 +111,8 @@ func compareStudents(t *testing.T, student1, student2 Student) {
 	require.Equal(t, student1.ClassID, student2.ClassID)
 	require.Equal(t, student1.LastName, student2.LastName)
 	require.Equal(t, student1.Subjects, student2.Subjects)
+}
+
+func (s *Student) Clean() {
+	testQueries.DeleteStudent(context.Background(), s.ID)
 }

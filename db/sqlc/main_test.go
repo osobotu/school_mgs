@@ -28,3 +28,15 @@ func TestMain(m *testing.M) {
 
 	os.Exit(m.Run())
 }
+
+type Cleaner interface {
+	Clean()
+}
+
+func (tq *Queries) RunCleaners(t *testing.T, models ...Cleaner) {
+	for _, v := range models {
+		t.Cleanup(func() {
+			v.Clean()
+		})
+	}
+}

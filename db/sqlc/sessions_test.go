@@ -10,7 +10,8 @@ import (
 )
 
 func TestCreateSession(t *testing.T) {
-	createTestSession(t)
+	session := createTestSession(t)
+	testQueries.RunCleaners(t, &session)
 }
 
 func TestDeleteSession(t *testing.T) {
@@ -22,6 +23,8 @@ func TestDeleteSession(t *testing.T) {
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, session2)
+
+	testQueries.RunCleaners(t, &session1, &session2)
 }
 
 func TestGetSessionById(t *testing.T) {
@@ -31,6 +34,8 @@ func TestGetSessionById(t *testing.T) {
 	require.NotEmpty(t, session2)
 
 	compareSessions(t, session1, session2)
+
+	testQueries.RunCleaners(t, &session1, &session2)
 }
 
 func createTestSession(t *testing.T) Session {
@@ -69,4 +74,8 @@ func compareSessions(t *testing.T, session1, session2 Session) {
 	require.Equal(t, session1.StartDate, session2.StartDate)
 	require.Equal(t, session1.EndDate, session2.EndDate)
 	require.Equal(t, session1.CreatedAt, session2.CreatedAt)
+}
+
+func (s *Session) Clean() {
+	testQueries.DeleteSession(context.Background(), s.ID)
 }

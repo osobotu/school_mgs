@@ -11,7 +11,8 @@ import (
 const DemoTerm = "Demo Term"
 
 func TestCreateTerm(t *testing.T) {
-	createTestTerm(t)
+	term := createTestTerm(t)
+	testQueries.RunCleaners(t, &term)
 }
 
 func TestDeleteTerm(t *testing.T) {
@@ -25,6 +26,8 @@ func TestDeleteTerm(t *testing.T) {
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, term2)
 
+	testQueries.RunCleaners(t, &term1, &term2)
+
 }
 
 func TestGetTermByID(t *testing.T) {
@@ -33,6 +36,8 @@ func TestGetTermByID(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, term2)
 	compareTerms(t, term1, term2)
+
+	testQueries.RunCleaners(t, &term1, &term2)
 }
 
 func createTestTerm(t *testing.T) Term {
@@ -60,4 +65,8 @@ func compareTerms(t *testing.T, term1, term2 Term) {
 	require.Equal(t, term1.ID, term2.ID)
 	require.Equal(t, term1.Name, term2.Name)
 	require.Equal(t, term1.Number, term2.Number)
+}
+
+func (t *Term) Clean() {
+	testQueries.DeleteTerm(context.Background(), t.ID)
 }
