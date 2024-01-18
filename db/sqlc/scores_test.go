@@ -41,8 +41,8 @@ func TestGetScoreByStudentId(t *testing.T) {
 
 func createTestScore(t *testing.T) Score {
 	arg := CreateScoreParams{
-		StudentID:    int32(utils.RandomInt(3, 5)),
-		TermScoresID: int32(utils.RandomInt(3, 7)),
+		StudentID:    int32(utils.RandomInt(1, 2)),
+		TermScoresID: int32(utils.RandomInt(1, 2)),
 		UpdatedAt:    time.Now(),
 	}
 	score, err := testQueries.CreateScore(context.Background(), arg)

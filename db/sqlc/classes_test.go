@@ -67,7 +67,7 @@ func TestListClass(t *testing.T) {
 func TestUpdateFormMaster(t *testing.T) {
 	class1 := createTestClass(t)
 	var formMasterId sql.NullInt32
-	formMasterId.Scan(4)
+	formMasterId.Scan(1)
 	arg := UpdateFormMasterParams{
 		ID:           class1.ID,
 		Name:         class1.Name,
