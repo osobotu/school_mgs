@@ -16,7 +16,7 @@ WHERE name = $1 LIMIT 1;
 
 -- name: ListSubjects :many
 SELECT * FROM subjects
-ORDER by name
+ORDER by id
 LIMIT $1
 OFFSET $2;
 

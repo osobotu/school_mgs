@@ -3,15 +3,15 @@ CREATE TABLE "teachers" (
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "middle_name" varchar,
-  "subject_id" integer NOT NULL,
-  "classes" integer[] NOT NULL,
+  "subject_id" integer,
+  "classes" integer[],
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "subjects" (
   "id" serial PRIMARY KEY,
-  "name" varchar NOT NULL,
+  "name" varchar NOT NULL UNIQUE,
   "classes" integer[] NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
@@ -89,18 +89,18 @@ COMMENT ON COLUMN "subjects"."classes" IS 'These are the classes that can take t
 
 COMMENT ON COLUMN "students"."class_id" IS 'A student can only belong to one class, ensure this array has a length of one';
 
-ALTER TABLE "teachers" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id");
+ALTER TABLE "teachers" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE SET NULL;
 
-ALTER TABLE "classes" ADD FOREIGN KEY ("form_master_id") REFERENCES "teachers" ("id");
+ALTER TABLE "classes" ADD FOREIGN KEY ("form_master_id") REFERENCES "teachers" ("id") ON DELETE SET NULL;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id");
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("term_id") REFERENCES "terms" ("id");
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("term_id") REFERENCES "terms" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("session_id") REFERENCES "sessions" ("id");
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("session_id") REFERENCES "sessions" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id");
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "scores" ADD FOREIGN KEY ("student_id") REFERENCES "students" ("id");
+ALTER TABLE "scores" ADD FOREIGN KEY ("student_id") REFERENCES "students" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "scores" ADD FOREIGN KEY ("term_scores_id") REFERENCES "term_scores" ("id");
+ALTER TABLE "scores" ADD FOREIGN KEY ("term_scores_id") REFERENCES "term_scores" ("id") ON DELETE CASCADE;

@@ -28,7 +28,7 @@ type CreateTeacherParams struct {
 	FirstName  string         `json:"first_name"`
 	LastName   string         `json:"last_name"`
 	MiddleName sql.NullString `json:"middle_name"`
-	SubjectID  int32          `json:"subject_id"`
+	SubjectID  sql.NullInt32  `json:"subject_id"`
 	Classes    []int32        `json:"classes"`
 }
 
@@ -161,7 +161,7 @@ type UpdateTeacherParams struct {
 	FirstName  string         `json:"first_name"`
 	LastName   string         `json:"last_name"`
 	MiddleName sql.NullString `json:"middle_name"`
-	SubjectID  int32          `json:"subject_id"`
+	SubjectID  sql.NullInt32  `json:"subject_id"`
 	Classes    []int32        `json:"classes"`
 }
 

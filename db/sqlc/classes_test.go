@@ -85,7 +85,7 @@ func TestUpdateFormMaster(t *testing.T) {
 	require.Equal(t, arg.FormMasterID, class2.FormMasterID)
 	require.Equal(t, arg.Name, class2.Name)
 
-	testQueries.RunCleaners(t, &class1, &class2, &teacher)
+	testQueries.RunCleaners(t, &teacher, &class1, &class2)
 }
 
 func createTestClass(t *testing.T) Class {

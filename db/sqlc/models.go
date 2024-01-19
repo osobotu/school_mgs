@@ -59,7 +59,7 @@ type Teacher struct {
 	FirstName  string         `json:"first_name"`
 	LastName   string         `json:"last_name"`
 	MiddleName sql.NullString `json:"middle_name"`
-	SubjectID  int32          `json:"subject_id"`
+	SubjectID  sql.NullInt32  `json:"subject_id"`
 	Classes    []int32        `json:"classes"`
 	CreatedAt  time.Time      `json:"created_at"`
 	UpdatedAt  time.Time      `json:"updated_at"`

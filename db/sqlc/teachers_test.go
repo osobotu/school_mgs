@@ -70,6 +70,8 @@ func TestDeleteTeacher(t *testing.T) {
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, teacher2)
+
+	testQueries.RunCleaners(t, &teacher1, &teacher2)
 }
 
 func TestListTeachers(t *testing.T) {
@@ -96,10 +98,13 @@ func createTestTeacher(t *testing.T) Teacher {
 	classes := make([]int32, 3)
 	subject := createTestSubject(t)
 
+	var subjectID sql.NullInt32
+	subjectID.Scan(subject.ID)
+
 	arg := CreateTeacherParams{
 		FirstName: utils.RandomString(5),
 		LastName:  utils.RandomString(5),
-		SubjectID: subject.ID,
+		SubjectID: subjectID,
 		Classes:   classes,
 	}
 

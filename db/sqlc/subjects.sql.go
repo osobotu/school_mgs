@@ -85,7 +85,7 @@ func (q *Queries) GetSubjectByName(ctx context.Context, name string) (Subject, e
 
 const listSubjects = `-- name: ListSubjects :many
 SELECT id, name, classes, created_at, updated_at FROM subjects
-ORDER by name
+ORDER by id
 LIMIT $1
 OFFSET $2
 `
