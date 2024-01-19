@@ -42,6 +42,8 @@ func NewServer(store *db.Store) *Server {
 
 		// ! sessions
 		v1.POST("/sessions", server.createSession)
+		v1.GET("/sessions/:id", server.getSessionByID)
+		v1.DELETE("/sessions/:id", server.deleteSession)
 	}
 
 	server.router = router

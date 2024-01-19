@@ -52,3 +52,47 @@ func (server *Server) createSession(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, session)
 }
+
+type sessionID struct {
+	ID int32 `uri:"id" binding:"required,min=1"`
+}
+
+func (server *Server) getSessionByID(ctx *gin.Context) {
+	var req sessionID
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	session, err := server.store.GetSessionById(ctx, req.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, session)
+}
+
+func (server *Server) deleteSession(ctx *gin.Context) {
+	var req sessionID
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	err := server.store.DeleteSession(ctx, req.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, "Deleted successfully")
+}

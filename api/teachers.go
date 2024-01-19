@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/osobotu/school_mgs/db/sqlc"
@@ -55,6 +56,17 @@ type getTeacherByIDRequest struct {
 	ID int32 `uri:"id" binding:"required,min=1"`
 }
 
+type TeacherX struct {
+	ID         int32     `json:"id"`
+	FirstName  string    `json:"first_name"`
+	LastName   string    `json:"last_name"`
+	MiddleName *string   `json:"middle_name"`
+	SubjectID  *int32    `json:"subject_id"`
+	Classes    []int32   `json:"classes"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+}
+
 func (server *Server) getTeacherByID(ctx *gin.Context) {
 	var req getTeacherByIDRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
@@ -72,7 +84,23 @@ func (server *Server) getTeacherByID(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, teacher)
+	teacherX := TeacherX{
+		ID:        teacher.ID,
+		FirstName: teacher.FirstName,
+		LastName:  teacher.LastName,
+		Classes:   teacher.Classes,
+		CreatedAt: teacher.CreatedAt,
+		UpdatedAt: teacher.UpdatedAt,
+	}
+
+	if teacher.MiddleName.Valid {
+		teacherX.MiddleName = &teacher.MiddleName.String
+	}
+	if teacher.SubjectID.Valid {
+		teacherX.SubjectID = &teacher.SubjectID.Int32
+	}
+
+	ctx.JSON(http.StatusOK, teacherX)
 }
 
 type deleteTeacherByIDRequest struct {
