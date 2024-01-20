@@ -1,10 +1,9 @@
 -- name: CreateScore :one
 INSERT INTO scores (
     student_id,
-    term_scores_id,
-    updated_at
+    term_scores_id
 ) VALUES (
-    $1, $2, $3
+    $1, $2
 ) RETURNING *;
 
 -- name: GetScoreByStudentId :one

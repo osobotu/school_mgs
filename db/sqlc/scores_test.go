@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -44,7 +43,6 @@ func createTestScore(t *testing.T) Score {
 	arg := CreateScoreParams{
 		StudentID:    student.ID,
 		TermScoresID: termScore.ID,
-		UpdatedAt:    time.Now(),
 	}
 
 	score, err := testQueries.CreateScore(context.Background(), arg)

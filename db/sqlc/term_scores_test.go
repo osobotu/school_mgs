@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/osobotu/school_mgs/db/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -73,12 +74,12 @@ func TestListTermScoresForSubjectAndClass(t *testing.T) {
 func TestUpdateScoreById(t *testing.T) {
 	termScore1 := createTestTermScore(t)
 
-	var ass sql.NullFloat64
-	ass.Scan(termScore1.Assessment.Float64 + 5)
+	ass := float64(utils.RandomInt(0, 40))
+	exam := float64(utils.RandomInt(30, 60))
 	arg := UpdateTermScoreByIdParams{
 		ID:         termScore1.ID,
 		Assessment: ass,
-		Exam:       termScore1.Exam,
+		Exam:       exam,
 		UpdatedAt:  time.Now().UTC(),
 	}
 
@@ -95,10 +96,8 @@ func TestUpdateScoreById(t *testing.T) {
 }
 
 func createTestTermScore(t *testing.T) TermScore {
-	var ass sql.NullFloat64
-	ass.Scan(10.0)
-	var exam sql.NullFloat64
-	exam.Scan(45.0)
+	ass := float64(utils.RandomInt(0, 40))
+	exam := float64(utils.RandomInt(30, 60))
 
 	// const demoId = 1
 	subject := createTestSubject(t)
@@ -145,10 +144,8 @@ func compareTermScores(t *testing.T, termScore1, termScore2 TermScore) {
 }
 
 func createTestTermScoreWithSubjectIDAndClassID(t *testing.T, subjectID, classID int32) TermScore {
-	var ass sql.NullFloat64
-	ass.Scan(10.0)
-	var exam sql.NullFloat64
-	exam.Scan(45.0)
+	ass := float64(utils.RandomInt(0, 40))
+	exam := float64(utils.RandomInt(30, 60))
 
 	// const demoId = 1
 	term := createTestTerm(t)

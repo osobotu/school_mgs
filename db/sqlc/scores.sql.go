@@ -7,27 +7,24 @@ package db
 
 import (
 	"context"
-	"time"
 )
 
 const createScore = `-- name: CreateScore :one
 INSERT INTO scores (
     student_id,
-    term_scores_id,
-    updated_at
+    term_scores_id
 ) VALUES (
-    $1, $2, $3
+    $1, $2
 ) RETURNING student_id, term_scores_id, created_at, updated_at
 `
 
 type CreateScoreParams struct {
-	StudentID    int32     `json:"student_id"`
-	TermScoresID int32     `json:"term_scores_id"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	StudentID    int32 `json:"student_id"`
+	TermScoresID int32 `json:"term_scores_id"`
 }
 
 func (q *Queries) CreateScore(ctx context.Context, arg CreateScoreParams) (Score, error) {
-	row := q.db.QueryRowContext(ctx, createScore, arg.StudentID, arg.TermScoresID, arg.UpdatedAt)
+	row := q.db.QueryRowContext(ctx, createScore, arg.StudentID, arg.TermScoresID)
 	var i Score
 	err := row.Scan(
 		&i.StudentID,

@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/lib/pq"
 )
@@ -15,24 +16,27 @@ const createStudent = `-- name: CreateStudent :one
 INSERT INTO students (
     first_name,
     last_name,
+    middle_name,
     class_id,
     subjects
 ) VALUES (
-    $1, $2, $3, $4
+    $1, $2, $3, $4, $5
 ) RETURNING id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at
 `
 
 type CreateStudentParams struct {
-	FirstName string  `json:"first_name"`
-	LastName  string  `json:"last_name"`
-	ClassID   []int32 `json:"class_id"`
-	Subjects  []int32 `json:"subjects"`
+	FirstName  string         `json:"first_name"`
+	LastName   string         `json:"last_name"`
+	MiddleName sql.NullString `json:"middle_name"`
+	ClassID    []int32        `json:"class_id"`
+	Subjects   []int32        `json:"subjects"`
 }
 
 func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error) {
 	row := q.db.QueryRowContext(ctx, createStudent,
 		arg.FirstName,
 		arg.LastName,
+		arg.MiddleName,
 		pq.Array(arg.ClassID),
 		pq.Array(arg.Subjects),
 	)
@@ -66,27 +70,6 @@ WHERE id = $1 LIMIT 1
 
 func (q *Queries) GetStudentById(ctx context.Context, id int32) (Student, error) {
 	row := q.db.QueryRowContext(ctx, getStudentById, id)
-	var i Student
-	err := row.Scan(
-		&i.ID,
-		&i.FirstName,
-		&i.LastName,
-		&i.MiddleName,
-		pq.Array(&i.ClassID),
-		pq.Array(&i.Subjects),
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getStudentByName = `-- name: GetStudentByName :one
-SELECT id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at FROM students
-WHERE first_name = $1 LIMIT 1
-`
-
-func (q *Queries) GetStudentByName(ctx context.Context, firstName string) (Student, error) {
-	row := q.db.QueryRowContext(ctx, getStudentByName, firstName)
 	var i Student
 	err := row.Scan(
 		&i.ID,
@@ -145,48 +128,31 @@ func (q *Queries) ListStudents(ctx context.Context, arg ListStudentsParams) ([]S
 	return items, nil
 }
 
-const updateClass = `-- name: UpdateClass :one
+const updateStudent = `-- name: UpdateStudent :one
 UPDATE students
-SET class_id = $2
+SET first_name = $2, last_name = $3, middle_name = $4, class_id = $5, subjects = $6
 WHERE id = $1
 RETURNING id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at
 `
 
-type UpdateClassParams struct {
-	ID      int32   `json:"id"`
-	ClassID []int32 `json:"class_id"`
+type UpdateStudentParams struct {
+	ID         int32          `json:"id"`
+	FirstName  string         `json:"first_name"`
+	LastName   string         `json:"last_name"`
+	MiddleName sql.NullString `json:"middle_name"`
+	ClassID    []int32        `json:"class_id"`
+	Subjects   []int32        `json:"subjects"`
 }
 
-func (q *Queries) UpdateClass(ctx context.Context, arg UpdateClassParams) (Student, error) {
-	row := q.db.QueryRowContext(ctx, updateClass, arg.ID, pq.Array(arg.ClassID))
-	var i Student
-	err := row.Scan(
-		&i.ID,
-		&i.FirstName,
-		&i.LastName,
-		&i.MiddleName,
-		pq.Array(&i.ClassID),
-		pq.Array(&i.Subjects),
-		&i.CreatedAt,
-		&i.UpdatedAt,
+func (q *Queries) UpdateStudent(ctx context.Context, arg UpdateStudentParams) (Student, error) {
+	row := q.db.QueryRowContext(ctx, updateStudent,
+		arg.ID,
+		arg.FirstName,
+		arg.LastName,
+		arg.MiddleName,
+		pq.Array(arg.ClassID),
+		pq.Array(arg.Subjects),
 	)
-	return i, err
-}
-
-const updateSubjectsList = `-- name: UpdateSubjectsList :one
-UPDATE students
-SET subjects = $2
-WHERE id = $1
-RETURNING id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at
-`
-
-type UpdateSubjectsListParams struct {
-	ID       int32   `json:"id"`
-	Subjects []int32 `json:"subjects"`
-}
-
-func (q *Queries) UpdateSubjectsList(ctx context.Context, arg UpdateSubjectsListParams) (Student, error) {
-	row := q.db.QueryRowContext(ctx, updateSubjectsList, arg.ID, pq.Array(arg.Subjects))
 	var i Student
 	err := row.Scan(
 		&i.ID,

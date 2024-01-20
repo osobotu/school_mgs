@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"time"
 )
 
@@ -25,12 +24,12 @@ INSERT INTO term_scores (
 `
 
 type CreateTermScoreParams struct {
-	Assessment sql.NullFloat64 `json:"assessment"`
-	Exam       sql.NullFloat64 `json:"exam"`
-	SubjectID  int32           `json:"subject_id"`
-	TermID     int32           `json:"term_id"`
-	SessionID  int32           `json:"session_id"`
-	ClassID    int32           `json:"class_id"`
+	Assessment float64 `json:"assessment"`
+	Exam       float64 `json:"exam"`
+	SubjectID  int32   `json:"subject_id"`
+	TermID     int32   `json:"term_id"`
+	SessionID  int32   `json:"session_id"`
+	ClassID    int32   `json:"class_id"`
 }
 
 func (q *Queries) CreateTermScore(ctx context.Context, arg CreateTermScoreParams) (TermScore, error) {
@@ -149,10 +148,10 @@ RETURNING id, assessment, exam, subject_id, term_id, session_id, class_id, creat
 `
 
 type UpdateTermScoreByIdParams struct {
-	ID         int32           `json:"id"`
-	Assessment sql.NullFloat64 `json:"assessment"`
-	Exam       sql.NullFloat64 `json:"exam"`
-	UpdatedAt  time.Time       `json:"updated_at"`
+	ID         int32     `json:"id"`
+	Assessment float64   `json:"assessment"`
+	Exam       float64   `json:"exam"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 func (q *Queries) UpdateTermScoreById(ctx context.Context, arg UpdateTermScoreByIdParams) (TermScore, error) {

@@ -46,8 +46,8 @@ CREATE TABLE "terms" (
 
 CREATE TABLE "term_scores" (
   "id" serial PRIMARY KEY,
-  "assessment" float,
-  "exam" float,
+  "assessment" float NOT NULL,
+  "exam" float NOT NULL,
   "subject_id" integer NOT NULL,
   "term_id" integer NOT NULL,
   "session_id" integer NOT NULL,

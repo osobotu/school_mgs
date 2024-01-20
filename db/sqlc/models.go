@@ -74,13 +74,13 @@ type Term struct {
 }
 
 type TermScore struct {
-	ID         int32           `json:"id"`
-	Assessment sql.NullFloat64 `json:"assessment"`
-	Exam       sql.NullFloat64 `json:"exam"`
-	SubjectID  int32           `json:"subject_id"`
-	TermID     int32           `json:"term_id"`
-	SessionID  int32           `json:"session_id"`
-	ClassID    int32           `json:"class_id"`
-	CreatedAt  time.Time       `json:"created_at"`
-	UpdatedAt  time.Time       `json:"updated_at"`
+	ID         int32     `json:"id"`
+	Assessment float64   `json:"assessment"`
+	Exam       float64   `json:"exam"`
+	SubjectID  int32     `json:"subject_id"`
+	TermID     int32     `json:"term_id"`
+	SessionID  int32     `json:"session_id"`
+	ClassID    int32     `json:"class_id"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }

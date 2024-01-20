@@ -24,16 +24,6 @@ func TestGetStudentById(t *testing.T) {
 	testQueries.RunCleaners(t, &student1, &student2)
 
 }
-func TestGetStudentByName(t *testing.T) {
-	student1 := createTestStudent(t)
-	student2, err := testQueries.GetStudentByName(context.Background(), student1.FirstName)
-	require.NoError(t, err)
-	require.NotEmpty(t, student2)
-
-	compareStudents(t, student1, student2)
-	testQueries.RunCleaners(t, &student1, &student2)
-
-}
 
 func TestListStudents(t *testing.T) {
 	for i := 0; i < 10; i++ {
@@ -55,35 +45,63 @@ func TestListStudents(t *testing.T) {
 	}
 }
 
-func TestUpdateClass(t *testing.T) {
-	classID := make([]int32, 1)
+func TestUpdateStudent(t *testing.T) {
+	newClass := make([]int32, 1)
+	newSubjects := utils.RandomList(5)
+	newFirstName := utils.RandomString(5)
+	newLastName := utils.RandomString(5)
 	student1 := createTestStudent(t)
-	arg := UpdateClassParams{
-		ID:      student1.ID,
-		ClassID: classID,
+
+	arg := UpdateStudentParams{
+		ID:         student1.ID,
+		FirstName:  newFirstName,
+		LastName:   newLastName,
+		MiddleName: student1.MiddleName,
+		ClassID:    newClass,
+		Subjects:   newSubjects,
 	}
-	student2, err := testQueries.UpdateClass(context.Background(), arg)
+
+	student2, err := testQueries.UpdateStudent(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, student2)
 
-	require.Equal(t, arg.ClassID, student2.ClassID)
-	testQueries.RunCleaners(t, &student1, &student2)
+	require.Equal(t, student1.ID, student2.ID)
+	require.Equal(t, newFirstName, student2.FirstName)
+	require.Equal(t, newLastName, student2.LastName)
+	require.Equal(t, student1.MiddleName, student2.MiddleName)
+	require.Equal(t, newClass, student2.ClassID)
+	require.Equal(t, newSubjects, student2.Subjects)
 }
 
-func TestUpdateSubjectsList(t *testing.T) {
-	student1 := createTestStudent(t)
-	newSubjects := utils.RandomList(7)
-	arg := UpdateSubjectsListParams{
-		ID:       student1.ID,
-		Subjects: newSubjects,
-	}
-	student2, err := testQueries.UpdateSubjectsList(context.Background(), arg)
-	require.NoError(t, err)
-	require.NotEmpty(t, student2)
+// func TestUpdateClass(t *testing.T) {
+// 	classID := make([]int32, 1)
+// 	student1 := createTestStudent(t)
+// 	arg := UpdateClassParams{
+// 		ID:      student1.ID,
+// 		ClassID: classID,
+// 	}
+// 	student2, err := testQueries.UpdateClass(context.Background(), arg)
+// 	require.NoError(t, err)
+// 	require.NotEmpty(t, student2)
 
-	require.Equal(t, arg.Subjects, student2.Subjects)
-	testQueries.RunCleaners(t, &student1, &student2)
-}
+// 	require.Equal(t, arg.ClassID, student2.ClassID)
+// 	testQueries.RunCleaners(t, &student1, &student2)
+// }
+
+// func TestUpdateSubjectsList(t *testing.T) {
+// 	student1 := createTestStudent(t)
+// 	newSubjects := utils.RandomList(7)
+// 	arg := UpdateSubjectsListParams{
+// 		ID:       student1.ID,
+// 		Subjects: newSubjects,
+// 	}
+// 	student2, err := testQueries.UpdateSubjectsList(context.Background(), arg)
+// 	require.NoError(t, err)
+// 	require.NotEmpty(t, student2)
+
+// 	require.Equal(t, arg.Subjects, student2.Subjects)
+// 	testQueries.RunCleaners(t, &student1, &student2)
+// }
 
 func createTestStudent(t *testing.T) Student {
 	classID := make([]int32, 1)

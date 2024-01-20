@@ -30,7 +30,6 @@ type Querier interface {
 	GetScoreByStudentId(ctx context.Context, studentID int32) (Score, error)
 	GetSessionById(ctx context.Context, id int32) (Session, error)
 	GetStudentById(ctx context.Context, id int32) (Student, error)
-	GetStudentByName(ctx context.Context, firstName string) (Student, error)
 	GetSubjectById(ctx context.Context, id int32) (Subject, error)
 	GetSubjectByName(ctx context.Context, name string) (Subject, error)
 	GetTeacherById(ctx context.Context, id int32) (Teacher, error)
@@ -42,9 +41,8 @@ type Querier interface {
 	ListSubjects(ctx context.Context, arg ListSubjectsParams) ([]Subject, error)
 	ListTeachers(ctx context.Context, arg ListTeachersParams) ([]Teacher, error)
 	ListTermScoresForSubjectAndClass(ctx context.Context, arg ListTermScoresForSubjectAndClassParams) ([]TermScore, error)
-	UpdateClass(ctx context.Context, arg UpdateClassParams) (Student, error)
 	UpdateFormMaster(ctx context.Context, arg UpdateFormMasterParams) (Class, error)
-	UpdateSubjectsList(ctx context.Context, arg UpdateSubjectsListParams) (Student, error)
+	UpdateStudent(ctx context.Context, arg UpdateStudentParams) (Student, error)
 	UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (Teacher, error)
 	UpdateTermScoreById(ctx context.Context, arg UpdateTermScoreByIdParams) (TermScore, error)
 }

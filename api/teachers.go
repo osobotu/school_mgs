@@ -43,7 +43,6 @@ func (server *Server) createTeacher(ctx *gin.Context) {
 
 	teacher, err := server.store.CreateTeacher(ctx, arg)
 	if err != nil {
-
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
