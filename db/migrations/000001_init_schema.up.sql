@@ -3,26 +3,73 @@ CREATE TABLE "teachers" (
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "middle_name" varchar,
-  "subject_id" integer,
-  "classes" integer[],
+  "subject_id" integer NOT NULL,
+  "department_id" integer NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "teacher_teaches_class" (
+  "teacher_id" integer NOT NULL,
+  "class_id" integer NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now()),
+  PRIMARY KEY ("teacher_id", "class_id")
 );
 
 CREATE TABLE "subjects" (
   "id" serial PRIMARY KEY,
   "name" varchar NOT NULL UNIQUE,
-  "classes" integer[] NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "classes" (
   "id" serial PRIMARY KEY,
-  "name" varchar NOT NULL,
-  "form_master_id" integer,
+  "name" varchar NOT NULL UNIQUE,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "form_masters" (
+  "id" serial PRIMARY KEY,
+  "teacher_id" integer UNIQUE,
+  "class_id" integer,
+  "arm_id" integer,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now()),
+  UNIQUE (class_id, arm_id)
+);
+
+CREATE TABLE "arms" (
+  "id" serial PRIMARY KEY,
+  "name" varchar NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "class_has_arms" (
+  "class_id" integer NOT NULL,
+  "arm_id" integer NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now()),
+  PRIMARY KEY ("class_id", "arm_id")
+);
+
+CREATE TABLE "departments" (
+  "id" serial PRIMARY KEY,
+  "name" varchar NOT NULL,
+  "description" varchar NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "department_has_subjects" (
+  "subject_id" integer NOT NULL,
+  "department_id" integer NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now()),
+  PRIMARY KEY ("subject_id", "department_id")
 );
 
 CREATE TABLE "students" (
@@ -30,10 +77,18 @@ CREATE TABLE "students" (
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "middle_name" varchar,
-  "class_id" integer[] NOT NULL,
-  "subjects" integer[] NOT NULL,
+  "class_id" integer NOT NULL,
+  "department_id" integer NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "student_offers_subject" (
+  "student_id" integer NOT NULL,
+  "subject_id" integer NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now()),
+  PRIMARY KEY ("student_id", "subject_id")
 );
 
 CREATE TABLE "terms" (
@@ -46,12 +101,13 @@ CREATE TABLE "terms" (
 
 CREATE TABLE "term_scores" (
   "id" serial PRIMARY KEY,
-  "assessment" float NOT NULL,
-  "exam" float NOT NULL,
+  "assessment" float,
+  "exam" float,
   "subject_id" integer NOT NULL,
   "term_id" integer NOT NULL,
   "session_id" integer NOT NULL,
   "class_id" integer NOT NULL,
+  "arm_id" integer NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -83,23 +139,43 @@ CREATE INDEX ON "students" ("first_name");
 
 CREATE INDEX ON "students" ("last_name");
 
-CREATE UNIQUE INDEX ON "scores" ("student_id", "term_scores_id");
-
-COMMENT ON COLUMN "subjects"."classes" IS 'These are the classes that can take this subject';
-
-COMMENT ON COLUMN "students"."class_id" IS 'A student can only belong to one class, ensure this array has a length of one';
-
 ALTER TABLE "teachers" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE SET NULL;
 
-ALTER TABLE "classes" ADD FOREIGN KEY ("form_master_id") REFERENCES "teachers" ("id") ON DELETE SET NULL;
+ALTER TABLE "teachers" ADD FOREIGN KEY ("department_id") REFERENCES "departments" ("id") ON DELETE SET NULL;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE CASCADE;
+ALTER TABLE "teacher_teaches_class" ADD FOREIGN KEY ("teacher_id") REFERENCES "teachers" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("term_id") REFERENCES "terms" ("id") ON DELETE CASCADE;
+ALTER TABLE "teacher_teaches_class" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("session_id") REFERENCES "sessions" ("id") ON DELETE CASCADE;
+ALTER TABLE "form_masters" ADD FOREIGN KEY ("teacher_id") REFERENCES "teachers" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id") ON DELETE CASCADE;
+ALTER TABLE "form_masters" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "class_has_arms" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "class_has_arms" ADD FOREIGN KEY ("arm_id") REFERENCES "arms" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "department_has_subjects" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE SET NULL;
+
+ALTER TABLE "department_has_subjects" ADD FOREIGN KEY ("department_id") REFERENCES "departments" ("id") ON DELETE SET NULL;
+
+ALTER TABLE "students" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id") ON DELETE SET NULL;
+
+ALTER TABLE "students" ADD FOREIGN KEY ("department_id") REFERENCES "departments" ("id") ON DELETE SET NULL;
+
+ALTER TABLE "student_offers_subject" ADD FOREIGN KEY ("student_id") REFERENCES "students" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "student_offers_subject" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE SET NULL;
+
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("term_id") REFERENCES "terms" ("id") ON DELETE SET NULL;
+
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("session_id") REFERENCES "sessions" ("id") ON DELETE SET NULL;
+
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id") ON DELETE SET NULL;
+
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("arm_id") REFERENCES "arms" ("id") ON DELETE SET NULL;
 
 ALTER TABLE "scores" ADD FOREIGN KEY ("student_id") REFERENCES "students" ("id") ON DELETE CASCADE;
 

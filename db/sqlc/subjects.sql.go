@@ -7,31 +7,22 @@ package db
 
 import (
 	"context"
-
-	"github.com/lib/pq"
 )
 
 const createSubject = `-- name: CreateSubject :one
 INSERT INTO subjects (
-    name,
-    classes
+    name
 ) VALUES (
-    $1, $2
-) RETURNING id, name, classes, created_at, updated_at
+    $1
+) RETURNING id, name, created_at, updated_at
 `
 
-type CreateSubjectParams struct {
-	Name    string  `json:"name"`
-	Classes []int32 `json:"classes"`
-}
-
-func (q *Queries) CreateSubject(ctx context.Context, arg CreateSubjectParams) (Subject, error) {
-	row := q.db.QueryRowContext(ctx, createSubject, arg.Name, pq.Array(arg.Classes))
+func (q *Queries) CreateSubject(ctx context.Context, name string) (Subject, error) {
+	row := q.db.QueryRowContext(ctx, createSubject, name)
 	var i Subject
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		pq.Array(&i.Classes),
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -48,7 +39,7 @@ func (q *Queries) DeleteSubject(ctx context.Context, id int32) error {
 }
 
 const getSubjectById = `-- name: GetSubjectById :one
-SELECT id, name, classes, created_at, updated_at FROM subjects
+SELECT id, name, created_at, updated_at FROM subjects
 WHERE id = $1 LIMIT 1
 `
 
@@ -58,25 +49,6 @@ func (q *Queries) GetSubjectById(ctx context.Context, id int32) (Subject, error)
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		pq.Array(&i.Classes),
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getSubjectByName = `-- name: GetSubjectByName :one
-SELECT id, name, classes, created_at, updated_at FROM subjects 
-WHERE name = $1 LIMIT 1
-`
-
-func (q *Queries) GetSubjectByName(ctx context.Context, name string) (Subject, error) {
-	row := q.db.QueryRowContext(ctx, getSubjectByName, name)
-	var i Subject
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		pq.Array(&i.Classes),
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -84,19 +56,12 @@ func (q *Queries) GetSubjectByName(ctx context.Context, name string) (Subject, e
 }
 
 const listSubjects = `-- name: ListSubjects :many
-SELECT id, name, classes, created_at, updated_at FROM subjects
-ORDER by id
-LIMIT $1
-OFFSET $2
+SELECT id, name, created_at, updated_at FROM subjects
+ORDER by name ASC
 `
 
-type ListSubjectsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
-
-func (q *Queries) ListSubjects(ctx context.Context, arg ListSubjectsParams) ([]Subject, error) {
-	rows, err := q.db.QueryContext(ctx, listSubjects, arg.Limit, arg.Offset)
+func (q *Queries) ListSubjects(ctx context.Context) ([]Subject, error) {
+	rows, err := q.db.QueryContext(ctx, listSubjects)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +72,6 @@ func (q *Queries) ListSubjects(ctx context.Context, arg ListSubjectsParams) ([]S
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			pq.Array(&i.Classes),
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {

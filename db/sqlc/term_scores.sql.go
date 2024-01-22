@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
@@ -17,19 +18,21 @@ INSERT INTO term_scores (
     subject_id,
     term_id,
     session_id,
-    class_id
+    class_id,
+    arm_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
-) RETURNING id, assessment, exam, subject_id, term_id, session_id, class_id, created_at, updated_at
+    $1, $2, $3, $4, $5, $6, $7
+) RETURNING id, assessment, exam, subject_id, term_id, session_id, class_id, arm_id, created_at, updated_at
 `
 
 type CreateTermScoreParams struct {
-	Assessment float64 `json:"assessment"`
-	Exam       float64 `json:"exam"`
-	SubjectID  int32   `json:"subject_id"`
-	TermID     int32   `json:"term_id"`
-	SessionID  int32   `json:"session_id"`
-	ClassID    int32   `json:"class_id"`
+	Assessment sql.NullFloat64 `json:"assessment"`
+	Exam       sql.NullFloat64 `json:"exam"`
+	SubjectID  int32           `json:"subject_id"`
+	TermID     int32           `json:"term_id"`
+	SessionID  int32           `json:"session_id"`
+	ClassID    int32           `json:"class_id"`
+	ArmID      int32           `json:"arm_id"`
 }
 
 func (q *Queries) CreateTermScore(ctx context.Context, arg CreateTermScoreParams) (TermScore, error) {
@@ -40,6 +43,7 @@ func (q *Queries) CreateTermScore(ctx context.Context, arg CreateTermScoreParams
 		arg.TermID,
 		arg.SessionID,
 		arg.ClassID,
+		arg.ArmID,
 	)
 	var i TermScore
 	err := row.Scan(
@@ -50,6 +54,7 @@ func (q *Queries) CreateTermScore(ctx context.Context, arg CreateTermScoreParams
 		&i.TermID,
 		&i.SessionID,
 		&i.ClassID,
+		&i.ArmID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -66,7 +71,7 @@ func (q *Queries) DeleteTermScore(ctx context.Context, id int32) error {
 }
 
 const getTermScoreById = `-- name: GetTermScoreById :one
-SELECT id, assessment, exam, subject_id, term_id, session_id, class_id, created_at, updated_at FROM term_scores 
+SELECT id, assessment, exam, subject_id, term_id, session_id, class_id, arm_id, created_at, updated_at FROM term_scores 
 WHERE id = $1 LIMIT 1
 `
 
@@ -81,6 +86,7 @@ func (q *Queries) GetTermScoreById(ctx context.Context, id int32) (TermScore, er
 		&i.TermID,
 		&i.SessionID,
 		&i.ClassID,
+		&i.ArmID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -88,7 +94,7 @@ func (q *Queries) GetTermScoreById(ctx context.Context, id int32) (TermScore, er
 }
 
 const listTermScoresForSubjectAndClass = `-- name: ListTermScoresForSubjectAndClass :many
-SELECT id, assessment, exam, subject_id, term_id, session_id, class_id, created_at, updated_at FROM term_scores
+SELECT id, assessment, exam, subject_id, term_id, session_id, class_id, arm_id, created_at, updated_at FROM term_scores
 WHERE subject_id = $3 AND class_id = $4
 ORDER BY id
 LIMIT $1
@@ -124,6 +130,7 @@ func (q *Queries) ListTermScoresForSubjectAndClass(ctx context.Context, arg List
 			&i.TermID,
 			&i.SessionID,
 			&i.ClassID,
+			&i.ArmID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -144,14 +151,14 @@ const updateTermScoreById = `-- name: UpdateTermScoreById :one
 UPDATE term_scores
 SET assessment = $2, exam = $3, updated_at = $4
 WHERE id = $1
-RETURNING id, assessment, exam, subject_id, term_id, session_id, class_id, created_at, updated_at
+RETURNING id, assessment, exam, subject_id, term_id, session_id, class_id, arm_id, created_at, updated_at
 `
 
 type UpdateTermScoreByIdParams struct {
-	ID         int32     `json:"id"`
-	Assessment float64   `json:"assessment"`
-	Exam       float64   `json:"exam"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID         int32           `json:"id"`
+	Assessment sql.NullFloat64 `json:"assessment"`
+	Exam       sql.NullFloat64 `json:"exam"`
+	UpdatedAt  time.Time       `json:"updated_at"`
 }
 
 func (q *Queries) UpdateTermScoreById(ctx context.Context, arg UpdateTermScoreByIdParams) (TermScore, error) {
@@ -170,6 +177,7 @@ func (q *Queries) UpdateTermScoreById(ctx context.Context, arg UpdateTermScoreBy
 		&i.TermID,
 		&i.SessionID,
 		&i.ClassID,
+		&i.ArmID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

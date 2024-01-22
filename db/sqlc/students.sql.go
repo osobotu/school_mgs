@@ -8,8 +8,6 @@ package db
 import (
 	"context"
 	"database/sql"
-
-	"github.com/lib/pq"
 )
 
 const createStudent = `-- name: CreateStudent :one
@@ -18,18 +16,18 @@ INSERT INTO students (
     last_name,
     middle_name,
     class_id,
-    subjects
+    department_id
 ) VALUES (
     $1, $2, $3, $4, $5
-) RETURNING id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at
+) RETURNING id, first_name, last_name, middle_name, class_id, department_id, created_at, updated_at
 `
 
 type CreateStudentParams struct {
-	FirstName  string         `json:"first_name"`
-	LastName   string         `json:"last_name"`
-	MiddleName sql.NullString `json:"middle_name"`
-	ClassID    []int32        `json:"class_id"`
-	Subjects   []int32        `json:"subjects"`
+	FirstName    string         `json:"first_name"`
+	LastName     string         `json:"last_name"`
+	MiddleName   sql.NullString `json:"middle_name"`
+	ClassID      int32          `json:"class_id"`
+	DepartmentID int32          `json:"department_id"`
 }
 
 func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error) {
@@ -37,8 +35,8 @@ func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (S
 		arg.FirstName,
 		arg.LastName,
 		arg.MiddleName,
-		pq.Array(arg.ClassID),
-		pq.Array(arg.Subjects),
+		arg.ClassID,
+		arg.DepartmentID,
 	)
 	var i Student
 	err := row.Scan(
@@ -46,8 +44,8 @@ func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (S
 		&i.FirstName,
 		&i.LastName,
 		&i.MiddleName,
-		pq.Array(&i.ClassID),
-		pq.Array(&i.Subjects),
+		&i.ClassID,
+		&i.DepartmentID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -64,7 +62,7 @@ func (q *Queries) DeleteStudent(ctx context.Context, id int32) error {
 }
 
 const getStudentById = `-- name: GetStudentById :one
-SELECT id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at FROM students
+SELECT id, first_name, last_name, middle_name, class_id, department_id, created_at, updated_at FROM students
 WHERE id = $1 LIMIT 1
 `
 
@@ -76,8 +74,8 @@ func (q *Queries) GetStudentById(ctx context.Context, id int32) (Student, error)
 		&i.FirstName,
 		&i.LastName,
 		&i.MiddleName,
-		pq.Array(&i.ClassID),
-		pq.Array(&i.Subjects),
+		&i.ClassID,
+		&i.DepartmentID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -85,8 +83,8 @@ func (q *Queries) GetStudentById(ctx context.Context, id int32) (Student, error)
 }
 
 const listStudents = `-- name: ListStudents :many
-SELECT id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at FROM students
-ORDER by first_name
+SELECT id, first_name, last_name, middle_name, class_id, department_id, created_at, updated_at FROM students
+ORDER by last_name
 LIMIT $1
 OFFSET $2
 `
@@ -110,8 +108,8 @@ func (q *Queries) ListStudents(ctx context.Context, arg ListStudentsParams) ([]S
 			&i.FirstName,
 			&i.LastName,
 			&i.MiddleName,
-			pq.Array(&i.ClassID),
-			pq.Array(&i.Subjects),
+			&i.ClassID,
+			&i.DepartmentID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -130,18 +128,18 @@ func (q *Queries) ListStudents(ctx context.Context, arg ListStudentsParams) ([]S
 
 const updateStudent = `-- name: UpdateStudent :one
 UPDATE students
-SET first_name = $2, last_name = $3, middle_name = $4, class_id = $5, subjects = $6
+SET first_name = $2, last_name = $3, middle_name = $4, class_id = $5, department_id = $6
 WHERE id = $1
-RETURNING id, first_name, last_name, middle_name, class_id, subjects, created_at, updated_at
+RETURNING id, first_name, last_name, middle_name, class_id, department_id, created_at, updated_at
 `
 
 type UpdateStudentParams struct {
-	ID         int32          `json:"id"`
-	FirstName  string         `json:"first_name"`
-	LastName   string         `json:"last_name"`
-	MiddleName sql.NullString `json:"middle_name"`
-	ClassID    []int32        `json:"class_id"`
-	Subjects   []int32        `json:"subjects"`
+	ID           int32          `json:"id"`
+	FirstName    string         `json:"first_name"`
+	LastName     string         `json:"last_name"`
+	MiddleName   sql.NullString `json:"middle_name"`
+	ClassID      int32          `json:"class_id"`
+	DepartmentID int32          `json:"department_id"`
 }
 
 func (q *Queries) UpdateStudent(ctx context.Context, arg UpdateStudentParams) (Student, error) {
@@ -150,8 +148,8 @@ func (q *Queries) UpdateStudent(ctx context.Context, arg UpdateStudentParams) (S
 		arg.FirstName,
 		arg.LastName,
 		arg.MiddleName,
-		pq.Array(arg.ClassID),
-		pq.Array(arg.Subjects),
+		arg.ClassID,
+		arg.DepartmentID,
 	)
 	var i Student
 	err := row.Scan(
@@ -159,8 +157,8 @@ func (q *Queries) UpdateStudent(ctx context.Context, arg UpdateStudentParams) (S
 		&i.FirstName,
 		&i.LastName,
 		&i.MiddleName,
-		pq.Array(&i.ClassID),
-		pq.Array(&i.Subjects),
+		&i.ClassID,
+		&i.DepartmentID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

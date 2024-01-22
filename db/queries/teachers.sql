@@ -4,7 +4,7 @@ INSERT INTO teachers (
     last_name,
     middle_name,
     subject_id,
-    classes
+    department_id
 ) VALUES (
     $1, $2, $3, $4, $5
 ) RETURNING *;
@@ -12,10 +12,6 @@ INSERT INTO teachers (
 -- name: GetTeacherById :one
 SELECT * FROM teachers
 WHERE id = $1 LIMIT 1;
-
--- name: GetTeacherByName :one
-SELECT * FROM teachers
-WHERE last_name = $1 LIMIT 1;
 
 -- name: ListTeachers :many
 SELECT * FROM teachers
@@ -25,7 +21,7 @@ OFFSET $2;
 
 -- name: UpdateTeacher :one
 UPDATE teachers
-SET first_name = $2, last_name = $3, middle_name = $4, subject_id = $5, classes = $6
+SET first_name = $2, last_name = $3, middle_name = $4, subject_id = $5, department_id = $6, updated_at = $7
 WHERE id = $1
 RETURNING *;
 

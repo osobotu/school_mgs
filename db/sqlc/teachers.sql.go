@@ -8,8 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
-
-	"github.com/lib/pq"
+	"time"
 )
 
 const createTeacher = `-- name: CreateTeacher :one
@@ -18,18 +17,18 @@ INSERT INTO teachers (
     last_name,
     middle_name,
     subject_id,
-    classes
+    department_id
 ) VALUES (
     $1, $2, $3, $4, $5
-) RETURNING id, first_name, last_name, middle_name, subject_id, classes, created_at, updated_at
+) RETURNING id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at
 `
 
 type CreateTeacherParams struct {
-	FirstName  string         `json:"first_name"`
-	LastName   string         `json:"last_name"`
-	MiddleName sql.NullString `json:"middle_name"`
-	SubjectID  sql.NullInt32  `json:"subject_id"`
-	Classes    []int32        `json:"classes"`
+	FirstName    string         `json:"first_name"`
+	LastName     string         `json:"last_name"`
+	MiddleName   sql.NullString `json:"middle_name"`
+	SubjectID    int32          `json:"subject_id"`
+	DepartmentID int32          `json:"department_id"`
 }
 
 func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (Teacher, error) {
@@ -38,7 +37,7 @@ func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (T
 		arg.LastName,
 		arg.MiddleName,
 		arg.SubjectID,
-		pq.Array(arg.Classes),
+		arg.DepartmentID,
 	)
 	var i Teacher
 	err := row.Scan(
@@ -47,7 +46,7 @@ func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (T
 		&i.LastName,
 		&i.MiddleName,
 		&i.SubjectID,
-		pq.Array(&i.Classes),
+		&i.DepartmentID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -64,7 +63,7 @@ func (q *Queries) DeleteTeacher(ctx context.Context, id int32) error {
 }
 
 const getTeacherById = `-- name: GetTeacherById :one
-SELECT id, first_name, last_name, middle_name, subject_id, classes, created_at, updated_at FROM teachers
+SELECT id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at FROM teachers
 WHERE id = $1 LIMIT 1
 `
 
@@ -77,28 +76,7 @@ func (q *Queries) GetTeacherById(ctx context.Context, id int32) (Teacher, error)
 		&i.LastName,
 		&i.MiddleName,
 		&i.SubjectID,
-		pq.Array(&i.Classes),
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getTeacherByName = `-- name: GetTeacherByName :one
-SELECT id, first_name, last_name, middle_name, subject_id, classes, created_at, updated_at FROM teachers
-WHERE last_name = $1 LIMIT 1
-`
-
-func (q *Queries) GetTeacherByName(ctx context.Context, lastName string) (Teacher, error) {
-	row := q.db.QueryRowContext(ctx, getTeacherByName, lastName)
-	var i Teacher
-	err := row.Scan(
-		&i.ID,
-		&i.FirstName,
-		&i.LastName,
-		&i.MiddleName,
-		&i.SubjectID,
-		pq.Array(&i.Classes),
+		&i.DepartmentID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -106,7 +84,7 @@ func (q *Queries) GetTeacherByName(ctx context.Context, lastName string) (Teache
 }
 
 const listTeachers = `-- name: ListTeachers :many
-SELECT id, first_name, last_name, middle_name, subject_id, classes, created_at, updated_at FROM teachers
+SELECT id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at FROM teachers
 ORDER BY id
 LIMIT $1
 OFFSET $2
@@ -132,7 +110,7 @@ func (q *Queries) ListTeachers(ctx context.Context, arg ListTeachersParams) ([]T
 			&i.LastName,
 			&i.MiddleName,
 			&i.SubjectID,
-			pq.Array(&i.Classes),
+			&i.DepartmentID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -151,18 +129,19 @@ func (q *Queries) ListTeachers(ctx context.Context, arg ListTeachersParams) ([]T
 
 const updateTeacher = `-- name: UpdateTeacher :one
 UPDATE teachers
-SET first_name = $2, last_name = $3, middle_name = $4, subject_id = $5, classes = $6
+SET first_name = $2, last_name = $3, middle_name = $4, subject_id = $5, department_id = $6, updated_at = $7
 WHERE id = $1
-RETURNING id, first_name, last_name, middle_name, subject_id, classes, created_at, updated_at
+RETURNING id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at
 `
 
 type UpdateTeacherParams struct {
-	ID         int32          `json:"id"`
-	FirstName  string         `json:"first_name"`
-	LastName   string         `json:"last_name"`
-	MiddleName sql.NullString `json:"middle_name"`
-	SubjectID  sql.NullInt32  `json:"subject_id"`
-	Classes    []int32        `json:"classes"`
+	ID           int32          `json:"id"`
+	FirstName    string         `json:"first_name"`
+	LastName     string         `json:"last_name"`
+	MiddleName   sql.NullString `json:"middle_name"`
+	SubjectID    int32          `json:"subject_id"`
+	DepartmentID int32          `json:"department_id"`
+	UpdatedAt    time.Time      `json:"updated_at"`
 }
 
 func (q *Queries) UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (Teacher, error) {
@@ -172,7 +151,8 @@ func (q *Queries) UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (T
 		arg.LastName,
 		arg.MiddleName,
 		arg.SubjectID,
-		pq.Array(arg.Classes),
+		arg.DepartmentID,
+		arg.UpdatedAt,
 	)
 	var i Teacher
 	err := row.Scan(
@@ -181,7 +161,7 @@ func (q *Queries) UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (T
 		&i.LastName,
 		&i.MiddleName,
 		&i.SubjectID,
-		pq.Array(&i.Classes),
+		&i.DepartmentID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

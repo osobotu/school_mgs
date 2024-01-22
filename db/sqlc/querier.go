@@ -9,39 +9,60 @@ import (
 )
 
 type Querier interface {
+	CreateArm(ctx context.Context, name string) (Arm, error)
 	CreateClass(ctx context.Context, name string) (Class, error)
+	CreateClassHasArms(ctx context.Context, arg CreateClassHasArmsParams) (ClassHasArm, error)
+	CreateDepartment(ctx context.Context, arg CreateDepartmentParams) (Department, error)
+	CreateDepartmentHasSubject(ctx context.Context, arg CreateDepartmentHasSubjectParams) (DepartmentHasSubject, error)
+	CreateFormMaster(ctx context.Context, arg CreateFormMasterParams) (FormMaster, error)
 	CreateScore(ctx context.Context, arg CreateScoreParams) (Score, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error)
-	CreateSubject(ctx context.Context, arg CreateSubjectParams) (Subject, error)
+	CreateStudentOffersSubject(ctx context.Context, arg CreateStudentOffersSubjectParams) (StudentOffersSubject, error)
+	CreateSubject(ctx context.Context, name string) (Subject, error)
 	CreateTeacher(ctx context.Context, arg CreateTeacherParams) (Teacher, error)
+	CreateTeacherTeachesClass(ctx context.Context, arg CreateTeacherTeachesClassParams) (TeacherTeachesClass, error)
 	CreateTerm(ctx context.Context, arg CreateTermParams) (Term, error)
 	CreateTermScore(ctx context.Context, arg CreateTermScoreParams) (TermScore, error)
+	DeleteArm(ctx context.Context, id int32) error
 	DeleteClass(ctx context.Context, id int32) error
+	DeleteClassHasArms(ctx context.Context, arg DeleteClassHasArmsParams) error
+	DeleteDepartment(ctx context.Context, id int32) error
+	DeleteDepartmentHasSubjects(ctx context.Context, arg DeleteDepartmentHasSubjectsParams) error
+	DeleteFormMasterByClassID(ctx context.Context, arg DeleteFormMasterByClassIDParams) error
 	DeleteScore(ctx context.Context, studentID int32) error
 	DeleteSession(ctx context.Context, id int32) error
 	DeleteStudent(ctx context.Context, id int32) error
+	DeleteStudentOffersSubject(ctx context.Context, arg DeleteStudentOffersSubjectParams) error
 	DeleteSubject(ctx context.Context, id int32) error
 	DeleteTeacher(ctx context.Context, id int32) error
+	DeleteTeacherTeachesClass(ctx context.Context, arg DeleteTeacherTeachesClassParams) error
 	DeleteTerm(ctx context.Context, id int32) error
 	DeleteTermScore(ctx context.Context, id int32) error
+	GetArmByID(ctx context.Context, id int32) (Arm, error)
 	GetClassById(ctx context.Context, id int32) (Class, error)
 	GetClassByName(ctx context.Context, name string) (Class, error)
+	GetDepartmentByID(ctx context.Context, id int32) (Department, error)
+	GetFormMasterByID(ctx context.Context, id int32) (FormMaster, error)
 	GetScoreByStudentId(ctx context.Context, studentID int32) (Score, error)
 	GetSessionById(ctx context.Context, id int32) (Session, error)
 	GetStudentById(ctx context.Context, id int32) (Student, error)
 	GetSubjectById(ctx context.Context, id int32) (Subject, error)
-	GetSubjectByName(ctx context.Context, name string) (Subject, error)
 	GetTeacherById(ctx context.Context, id int32) (Teacher, error)
-	GetTeacherByName(ctx context.Context, lastName string) (Teacher, error)
 	GetTermByID(ctx context.Context, id int32) (Term, error)
 	GetTermScoreById(ctx context.Context, id int32) (TermScore, error)
+	ListAllDepartments(ctx context.Context) ([]Department, error)
+	ListArmsInClass(ctx context.Context, classID int32) ([]ClassHasArm, error)
 	ListClasses(ctx context.Context, arg ListClassesParams) ([]Class, error)
 	ListStudents(ctx context.Context, arg ListStudentsParams) ([]Student, error)
-	ListSubjects(ctx context.Context, arg ListSubjectsParams) ([]Subject, error)
+	ListSubjects(ctx context.Context) ([]Subject, error)
+	ListSubjectsByDepartmentID(ctx context.Context, departmentID int32) ([]DepartmentHasSubject, error)
+	ListSubjectsOfferedByStudentID(ctx context.Context, studentID int32) ([]StudentOffersSubject, error)
+	ListTeacherTeachesClassByTeacherID(ctx context.Context, teacherID int32) ([]TeacherTeachesClass, error)
 	ListTeachers(ctx context.Context, arg ListTeachersParams) ([]Teacher, error)
 	ListTermScoresForSubjectAndClass(ctx context.Context, arg ListTermScoresForSubjectAndClassParams) ([]TermScore, error)
-	UpdateFormMaster(ctx context.Context, arg UpdateFormMasterParams) (Class, error)
+	UpdateArm(ctx context.Context, arg UpdateArmParams) (Arm, error)
+	UpdateFormMaster(ctx context.Context, arg UpdateFormMasterParams) (FormMaster, error)
 	UpdateStudent(ctx context.Context, arg UpdateStudentParams) (Student, error)
 	UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (Teacher, error)
 	UpdateTermScoreById(ctx context.Context, arg UpdateTermScoreByIdParams) (TermScore, error)

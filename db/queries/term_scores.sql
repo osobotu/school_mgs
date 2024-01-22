@@ -5,9 +5,10 @@ INSERT INTO term_scores (
     subject_id,
     term_id,
     session_id,
-    class_id
+    class_id,
+    arm_id
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7
 ) RETURNING *;
 
 -- name: GetTermScoreById :one

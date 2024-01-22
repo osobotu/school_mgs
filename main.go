@@ -8,17 +8,16 @@ import (
 
 	"github.com/osobotu/school_mgs/api"
 	db "github.com/osobotu/school_mgs/db/sqlc"
-)
-
-const (
-	dbDriver      = "postgres"
-	dbSource      = "postgresql://postgres:password@localhost:5432/school_mgs?sslmode=disable"
-	serverAddress = "0.0.0.0:8080"
+	"github.com/osobotu/school_mgs/db/utils"
 )
 
 func main() {
+	config, err := utils.LoadConfig(".")
+	if err != nil {
+		log.Fatal("cannot load config")
+	}
 
-	conn, err := sql.Open(dbDriver, dbSource)
+	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to the database")
 	}
@@ -26,7 +25,7 @@ func main() {
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
 
-	err = server.Start(serverAddress)
+	err = server.Start(config.ServerAddress)
 	if err != nil {
 		log.Fatal("cannot start server")
 	}

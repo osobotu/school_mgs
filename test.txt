@@ -1,0 +1,4 @@
+end points in this REST API will provide
+
+terms:
+POST /terms

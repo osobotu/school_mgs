@@ -9,12 +9,49 @@ import (
 	"time"
 )
 
+type Arm struct {
+	ID        int32     `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type Class struct {
-	ID           int32         `json:"id"`
-	Name         string        `json:"name"`
-	FormMasterID sql.NullInt32 `json:"form_master_id"`
-	CreatedAt    time.Time     `json:"created_at"`
-	UpdatedAt    time.Time     `json:"updated_at"`
+	ID        int32     `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type ClassHasArm struct {
+	ClassID   int32     `json:"class_id"`
+	ArmID     int32     `json:"arm_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type Department struct {
+	ID          int32     `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type DepartmentHasSubject struct {
+	SubjectID    int32     `json:"subject_id"`
+	DepartmentID int32     `json:"department_id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type FormMaster struct {
+	ID        int32         `json:"id"`
+	TeacherID sql.NullInt32 `json:"teacher_id"`
+	ClassID   sql.NullInt32 `json:"class_id"`
+	ArmID     sql.NullInt32 `json:"arm_id"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
 }
 
 type Score struct {
@@ -34,35 +71,46 @@ type Session struct {
 }
 
 type Student struct {
-	ID         int32          `json:"id"`
-	FirstName  string         `json:"first_name"`
-	LastName   string         `json:"last_name"`
-	MiddleName sql.NullString `json:"middle_name"`
-	// A student can only belong to one class, ensure this array has a length of one
-	ClassID   []int32   `json:"class_id"`
-	Subjects  []int32   `json:"subjects"`
+	ID           int32          `json:"id"`
+	FirstName    string         `json:"first_name"`
+	LastName     string         `json:"last_name"`
+	MiddleName   sql.NullString `json:"middle_name"`
+	ClassID      int32          `json:"class_id"`
+	DepartmentID int32          `json:"department_id"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
+}
+
+type StudentOffersSubject struct {
+	StudentID int32     `json:"student_id"`
+	SubjectID int32     `json:"subject_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Subject struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
-	// These are the classes that can take this subject
-	Classes   []int32   `json:"classes"`
+	ID        int32     `json:"id"`
+	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Teacher struct {
-	ID         int32          `json:"id"`
-	FirstName  string         `json:"first_name"`
-	LastName   string         `json:"last_name"`
-	MiddleName sql.NullString `json:"middle_name"`
-	SubjectID  sql.NullInt32  `json:"subject_id"`
-	Classes    []int32        `json:"classes"`
-	CreatedAt  time.Time      `json:"created_at"`
-	UpdatedAt  time.Time      `json:"updated_at"`
+	ID           int32          `json:"id"`
+	FirstName    string         `json:"first_name"`
+	LastName     string         `json:"last_name"`
+	MiddleName   sql.NullString `json:"middle_name"`
+	SubjectID    int32          `json:"subject_id"`
+	DepartmentID int32          `json:"department_id"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
+}
+
+type TeacherTeachesClass struct {
+	TeacherID int32     `json:"teacher_id"`
+	ClassID   int32     `json:"class_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Term struct {
@@ -74,13 +122,14 @@ type Term struct {
 }
 
 type TermScore struct {
-	ID         int32     `json:"id"`
-	Assessment float64   `json:"assessment"`
-	Exam       float64   `json:"exam"`
-	SubjectID  int32     `json:"subject_id"`
-	TermID     int32     `json:"term_id"`
-	SessionID  int32     `json:"session_id"`
-	ClassID    int32     `json:"class_id"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID         int32           `json:"id"`
+	Assessment sql.NullFloat64 `json:"assessment"`
+	Exam       sql.NullFloat64 `json:"exam"`
+	SubjectID  int32           `json:"subject_id"`
+	TermID     int32           `json:"term_id"`
+	SessionID  int32           `json:"session_id"`
+	ClassID    int32           `json:"class_id"`
+	ArmID      int32           `json:"arm_id"`
+	CreatedAt  time.Time       `json:"created_at"`
+	UpdatedAt  time.Time       `json:"updated_at"`
 }
