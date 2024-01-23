@@ -10,11 +10,13 @@ import (
 )
 
 func TestCreateSubject(t *testing.T) {
+
 	subject := createTestSubject(t)
 	testQueries.RunCleaners(t, &subject)
 }
 
 func TestGetSubjectById(t *testing.T) {
+
 	subject1 := createTestSubject(t)
 	subject2, err := testQueries.GetSubjectById(context.Background(), subject1.ID)
 	require.NoError(t, err)
