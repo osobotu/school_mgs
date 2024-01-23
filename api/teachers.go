@@ -10,11 +10,11 @@ import (
 )
 
 type createTeacherRequest struct {
-	FirstName  string   `json:"first_name" binding:"required"`
-	LastName   string   `json:"last_name" binding:"required"`
-	MiddleName *string  `json:"middle_name"`
-	SubjectID  *int32   `json:"subject_id"`
-	Classes    *[]int32 `json:"classes"`
+	FirstName    string  `json:"first_name" binding:"required"`
+	LastName     string  `json:"last_name" binding:"required"`
+	MiddleName   *string `json:"middle_name"`
+	SubjectID    *int32  `json:"subject_id"`
+	DepartmentID *int32  `json:"department_id"`
 }
 
 func (server *Server) createTeacher(ctx *gin.Context) {
@@ -32,13 +32,17 @@ func (server *Server) createTeacher(ctx *gin.Context) {
 	if req.SubjectID != nil {
 		subjectID.Scan(*req.SubjectID)
 	}
+	var departmentID sql.NullInt32
+	if req.DepartmentID != nil {
+		subjectID.Scan(*req.DepartmentID)
+	}
 
 	arg := db.CreateTeacherParams{
-		FirstName:  req.FirstName,
-		LastName:   req.LastName,
-		MiddleName: middleName,
-		SubjectID:  subjectID,
-		Classes:    *req.Classes,
+		FirstName:    req.FirstName,
+		LastName:     req.LastName,
+		MiddleName:   middleName,
+		SubjectID:    subjectID,
+		DepartmentID: departmentID,
 	}
 
 	teacher, err := server.store.CreateTeacher(ctx, arg)
@@ -56,14 +60,14 @@ type getTeacherByIDRequest struct {
 }
 
 type TeacherX struct {
-	ID         int32     `json:"id"`
-	FirstName  string    `json:"first_name"`
-	LastName   string    `json:"last_name"`
-	MiddleName *string   `json:"middle_name"`
-	SubjectID  *int32    `json:"subject_id"`
-	Classes    []int32   `json:"classes"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID           int32     `json:"id"`
+	FirstName    string    `json:"first_name"`
+	LastName     string    `json:"last_name"`
+	MiddleName   *string   `json:"middle_name"`
+	SubjectID    *int32    `json:"subject_id"`
+	DepartmentID *int32    `json:"department_id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 func (server *Server) getTeacherByID(ctx *gin.Context) {
@@ -87,7 +91,6 @@ func (server *Server) getTeacherByID(ctx *gin.Context) {
 		ID:        teacher.ID,
 		FirstName: teacher.FirstName,
 		LastName:  teacher.LastName,
-		Classes:   teacher.Classes,
 		CreatedAt: teacher.CreatedAt,
 		UpdatedAt: teacher.UpdatedAt,
 	}
@@ -97,6 +100,9 @@ func (server *Server) getTeacherByID(ctx *gin.Context) {
 	}
 	if teacher.SubjectID.Valid {
 		teacherX.SubjectID = &teacher.SubjectID.Int32
+	}
+	if teacher.DepartmentID.Valid {
+		teacherX.DepartmentID = &teacher.DepartmentID.Int32
 	}
 
 	ctx.JSON(http.StatusOK, teacherX)
@@ -156,11 +162,11 @@ type updateTeacherID struct {
 	ID int32 `uri:"id" binding:"required,min=1"`
 }
 type updateTeacherByIDRequest struct {
-	FirstName  *string  `json:"first_name"`
-	LastName   *string  `json:"last_name"`
-	MiddleName *string  `json:"middle_name"`
-	SubjectID  *int32   `json:"subject_id"`
-	Classes    *[]int32 `json:"classes"`
+	FirstName    *string `json:"first_name"`
+	LastName     *string `json:"last_name"`
+	MiddleName   *string `json:"middle_name"`
+	SubjectID    *int32  `json:"subject_id"`
+	DepartmentID *int32  `json:"department_id"`
 }
 
 func (server *Server) updateTeacherByID(ctx *gin.Context) {
@@ -188,12 +194,12 @@ func (server *Server) updateTeacherByID(ctx *gin.Context) {
 	}
 
 	arg := db.UpdateTeacherParams{
-		ID:         teacher.ID,
-		FirstName:  teacher.FirstName,
-		LastName:   teacher.LastName,
-		MiddleName: teacher.MiddleName,
-		SubjectID:  teacher.SubjectID,
-		Classes:    teacher.Classes,
+		ID:           teacher.ID,
+		FirstName:    teacher.FirstName,
+		LastName:     teacher.LastName,
+		MiddleName:   teacher.MiddleName,
+		SubjectID:    teacher.SubjectID,
+		DepartmentID: teacher.DepartmentID,
 	}
 
 	if req.FirstName != nil {
@@ -212,8 +218,10 @@ func (server *Server) updateTeacherByID(ctx *gin.Context) {
 		id.Scan(*req.SubjectID)
 		arg.SubjectID = id
 	}
-	if req.Classes != nil {
-		arg.Classes = *req.Classes
+	if req.DepartmentID != nil {
+		var id sql.NullInt32
+		id.Scan(*req.DepartmentID)
+		arg.DepartmentID = id
 	}
 
 	teacher, err = server.store.UpdateTeacher(ctx, arg)

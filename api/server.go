@@ -47,7 +47,7 @@ func NewServer(store *db.Store) *Server {
 		// ! classes
 		v1.POST("/classes", server.createClass)
 		v1.GET("/classes/:id", server.getClassByID)
-		v1.PATCH("/classes/:id", server.updateFormMaster)
+		v1.GET("/classes", server.getClassByName)
 		v1.GET("/classes", server.listClasses)
 		v1.DELETE("/classes/:id", server.deleteClassByID)
 

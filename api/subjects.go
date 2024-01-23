@@ -22,12 +22,7 @@ func (server *Server) createSubject(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.CreateSubjectParams{
-		Name:    req.Name,
-		Classes: []int32{},
-	}
-
-	subject, err := server.store.CreateSubject(ctx, arg)
+	subject, err := server.store.CreateSubject(ctx, req.Name)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {
 			ctx.JSON(http.StatusBadRequest, "Subject already exists")

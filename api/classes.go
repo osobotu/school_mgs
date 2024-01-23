@@ -53,47 +53,23 @@ func (server *Server) getClassByID(ctx *gin.Context) {
 
 }
 
-type classUpdateData struct {
-	FormMasterID *int32 `json:"form_master_id" binding:"required,min=1"`
+type getClassByName struct {
+	Name string `form:"name" binding:"required"`
 }
 
-func (server *Server) updateFormMaster(ctx *gin.Context) {
-	var reqID getClassByIDRequest
-	if err := ctx.ShouldBindUri(&reqID); err != nil {
+func (server *Server) getClassByName(ctx *gin.Context) {
+	var req getClassByName
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	var reqData classUpdateData
-	if err := ctx.ShouldBindJSON(&reqData); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	class, err := server.store.GetClassById(ctx, reqID.ID)
+	class, err := server.store.GetClassByName(ctx, req.Name)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	arg := db.UpdateFormMasterParams{
-		ID:           class.ID,
-		Name:         class.Name,
-		FormMasterID: class.FormMasterID,
-	}
-
-	if reqData.FormMasterID != nil {
-		var fm sql.NullInt32
-		fm.Scan(*reqData.FormMasterID)
-		arg.FormMasterID = fm
-	}
-
-	class, err = server.store.UpdateFormMaster(ctx, arg)
-	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}

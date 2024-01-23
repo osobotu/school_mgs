@@ -9,11 +9,11 @@ import (
 )
 
 type createStudentRequest struct {
-	FirstName  string  `json:"first_name" binding:"required"`
-	LastName   string  `json:"last_name" binding:"required"`
-	MiddleName *string `json:"middle_name"`
-	ClassID    []int32 `json:"class_id"  binding:"required"`
-	Subjects   []int32 `json:"subjects"  binding:"required"`
+	FirstName    string  `json:"first_name" binding:"required"`
+	LastName     string  `json:"last_name" binding:"required"`
+	MiddleName   *string `json:"middle_name"`
+	ClassID      int32   `json:"class_id"  binding:"required"`
+	DepartmentID int32   `json:"department_id"  binding:"required"`
 }
 
 func (server *Server) createStudent(ctx *gin.Context) {
@@ -28,12 +28,18 @@ func (server *Server) createStudent(ctx *gin.Context) {
 		mn.Scan(*req.MiddleName)
 	}
 
+	var classID sql.NullInt32
+	classID.Scan(req.ClassID)
+
+	var departmentID sql.NullInt32
+	classID.Scan(req.DepartmentID)
+
 	arg := db.CreateStudentParams{
-		FirstName:  req.FirstName,
-		LastName:   req.LastName,
-		MiddleName: mn,
-		ClassID:    req.ClassID,
-		Subjects:   req.Subjects,
+		FirstName:    req.FirstName,
+		LastName:     req.LastName,
+		MiddleName:   mn,
+		ClassID:      classID,
+		DepartmentID: departmentID,
 	}
 
 	student, err := server.store.CreateStudent(ctx, arg)
@@ -100,11 +106,11 @@ func (server *Server) listStudents(ctx *gin.Context) {
 }
 
 type updateStudentRequest struct {
-	FirstName  *string  `json:"first_name"`
-	LastName   *string  `json:"last_name"`
-	MiddleName *string  `json:"middle_name"`
-	ClassID    *[]int32 `json:"class_id"`
-	Subjects   *[]int32 `json:"subjects"`
+	FirstName    *string `json:"first_name"`
+	LastName     *string `json:"last_name"`
+	MiddleName   *string `json:"middle_name"`
+	ClassID      *int32  `json:"class_id"`
+	DepartmentID *int32  `json:"department_id"`
 }
 
 func (server *Server) updateStudent(ctx *gin.Context) {
@@ -135,8 +141,9 @@ func (server *Server) updateStudent(ctx *gin.Context) {
 		FirstName:  student.FirstName,
 		LastName:   student.LastName,
 		MiddleName: student.MiddleName,
-		Subjects:   student.Subjects,
-		ClassID:    student.ClassID,
+
+		ClassID:      student.ClassID,
+		DepartmentID: student.DepartmentID,
 	}
 
 	if reqData.FirstName != nil {
@@ -154,11 +161,15 @@ func (server *Server) updateStudent(ctx *gin.Context) {
 	}
 
 	if reqData.ClassID != nil {
-		arg.ClassID = *reqData.ClassID
+		var cid sql.NullInt32
+		cid.Scan(*reqData.ClassID)
+		arg.ClassID = cid
 	}
 
-	if reqData.Subjects != nil {
-		arg.Subjects = *reqData.Subjects
+	if reqData.DepartmentID != nil {
+		var did sql.NullInt32
+		did.Scan(*reqData.DepartmentID)
+		arg.DepartmentID = did
 	}
 
 	student, err = server.store.UpdateStudent(ctx, arg)
