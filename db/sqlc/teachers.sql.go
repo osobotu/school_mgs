@@ -27,8 +27,8 @@ type CreateTeacherParams struct {
 	FirstName    string         `json:"first_name"`
 	LastName     string         `json:"last_name"`
 	MiddleName   sql.NullString `json:"middle_name"`
-	SubjectID    int32          `json:"subject_id"`
-	DepartmentID int32          `json:"department_id"`
+	SubjectID    sql.NullInt32  `json:"subject_id"`
+	DepartmentID sql.NullInt32  `json:"department_id"`
 }
 
 func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (Teacher, error) {
@@ -139,8 +139,8 @@ type UpdateTeacherParams struct {
 	FirstName    string         `json:"first_name"`
 	LastName     string         `json:"last_name"`
 	MiddleName   sql.NullString `json:"middle_name"`
-	SubjectID    int32          `json:"subject_id"`
-	DepartmentID int32          `json:"department_id"`
+	SubjectID    sql.NullInt32  `json:"subject_id"`
+	DepartmentID sql.NullInt32  `json:"department_id"`
 	UpdatedAt    time.Time      `json:"updated_at"`
 }
 

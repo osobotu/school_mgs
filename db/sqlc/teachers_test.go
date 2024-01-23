@@ -25,28 +25,15 @@ func TestGetTeacherById(t *testing.T) {
 	testQueries.RunCleaners(t, &teacher1, &teacher2)
 }
 
-func TestGetTeacherByName(t *testing.T) {
-	teacher1 := createTestTeacher(t)
-	teacher2, err := testQueries.GetTeacherByName(context.Background(), teacher1.LastName)
-
-	require.NoError(t, err)
-	require.NotEmpty(t, teacher2)
-
-	compareTeachers(t, teacher1, teacher2)
-
-	testQueries.RunCleaners(t, &teacher1, &teacher2)
-
-}
-
 func TestUpdateTeacher(t *testing.T) {
 	teacher1 := createTestTeacher(t)
 	arg := UpdateTeacherParams{
-		ID:         teacher1.ID,
-		FirstName:  teacher1.FirstName,
-		LastName:   "Updated Last Name",
-		MiddleName: teacher1.MiddleName,
-		SubjectID:  teacher1.SubjectID,
-		Classes:    teacher1.Classes,
+		ID:           teacher1.ID,
+		FirstName:    teacher1.FirstName,
+		LastName:     "Updated Last Name",
+		MiddleName:   teacher1.MiddleName,
+		SubjectID:    teacher1.SubjectID,
+		DepartmentID: teacher1.DepartmentID,
 	}
 	teacher2, err := testQueries.UpdateTeacher(context.Background(), arg)
 	require.NoError(t, err)
@@ -55,7 +42,7 @@ func TestUpdateTeacher(t *testing.T) {
 	require.Equal(t, arg.FirstName, teacher2.FirstName)
 	require.Equal(t, arg.LastName, teacher2.LastName)
 	require.Equal(t, arg.SubjectID, teacher2.SubjectID)
-	require.Equal(t, arg.Classes, teacher2.Classes)
+	require.Equal(t, arg.DepartmentID, teacher2.DepartmentID)
 
 	testQueries.RunCleaners(t, &teacher1, &teacher2)
 
@@ -75,6 +62,7 @@ func TestDeleteTeacher(t *testing.T) {
 }
 
 func TestListTeachers(t *testing.T) {
+
 	for i := 0; i < 10; i++ {
 		createTestTeacher(t)
 	}
@@ -95,17 +83,26 @@ func TestListTeachers(t *testing.T) {
 }
 
 func createTestTeacher(t *testing.T) Teacher {
-	classes := make([]int32, 3)
+
 	subject := createTestSubject(t)
+
+	var middleName sql.NullString
+	middleName.Scan(utils.RandomString(5))
+
+	department := createTestDepartment(t)
 
 	var subjectID sql.NullInt32
 	subjectID.Scan(subject.ID)
 
+	var departmentID sql.NullInt32
+	departmentID.Scan(department.ID)
+
 	arg := CreateTeacherParams{
-		FirstName: utils.RandomString(5),
-		LastName:  utils.RandomString(5),
-		SubjectID: subjectID,
-		Classes:   classes,
+		FirstName:    utils.RandomString(5),
+		LastName:     utils.RandomString(5),
+		MiddleName:   middleName,
+		SubjectID:    subjectID,
+		DepartmentID: departmentID,
 	}
 
 	teacher, err := testQueries.CreateTeacher(context.Background(), arg)
@@ -116,7 +113,7 @@ func createTestTeacher(t *testing.T) Teacher {
 	require.Equal(t, arg.FirstName, teacher.FirstName)
 	require.Equal(t, arg.LastName, teacher.LastName)
 	require.Equal(t, arg.SubjectID, teacher.SubjectID)
-	require.Equal(t, arg.Classes, teacher.Classes)
+	require.Equal(t, arg.DepartmentID, teacher.DepartmentID)
 
 	require.NotZero(t, teacher.ID)
 	require.NotZero(t, teacher.CreatedAt)
@@ -132,7 +129,7 @@ func compareTeachers(t *testing.T, teacher1, teacher2 Teacher) {
 	require.Equal(t, teacher1.LastName, teacher2.LastName)
 	require.Equal(t, teacher1.MiddleName, teacher2.MiddleName)
 	require.Equal(t, teacher1.SubjectID, teacher2.SubjectID)
-	require.Equal(t, teacher1.Classes, teacher2.Classes)
+	require.Equal(t, teacher1.DepartmentID, teacher2.DepartmentID)
 	require.Equal(t, teacher1.ID, teacher2.ID)
 }
 

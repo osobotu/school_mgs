@@ -46,37 +46,34 @@ func TestDeleteSubject(t *testing.T) {
 
 }
 
-// func TestListSubjects(t *testing.T) {
-// 	for i := 0; i < 10; i++ {
-// 		createTestSubject(t)
-// 	}
+func TestListSubjects(t *testing.T) {
+	subjects := make([]Subject, 5)
+	for i := 0; i < 5; i++ {
+		subjects = append(subjects, createTestSubject(t))
+	}
 
-// 	// arg := ListSubjectsParams{
-// 	// 	Limit:  5,
-// 	// 	Offset: 5,
-// 	// }
+	arg := ListSubjectsParams{
+		Limit:  5,
+		Offset: subjects[0].ID,
+	}
 
-// 	subjects, err := testQueries.ListSubjects(context.Background(), arg)
-// 	require.NoError(t, err)
-// 	require.Len(t, subjects, 5)
+	subjects, err := testQueries.ListSubjects(context.Background(), arg)
+	require.NoError(t, err)
+	require.Len(t, subjects, 5)
 
-// 	for _, subject := range subjects {
-// 		require.NotEmpty(t, subject)
-// 		testQueries.RunCleaners(t, &subject)
-// 	}
-// }
+	for _, subject := range subjects {
+		require.NotEmpty(t, subject)
+		testQueries.RunCleaners(t, &subject)
+	}
+}
 
 func createTestSubject(t *testing.T) Subject {
-	arg := CreateSubjectParams{
-		Name:    utils.RandomString(5),
-		Classes: utils.RandomList(3),
-	}
-	subject, err := testQueries.CreateSubject(context.Background(), arg)
+	name := utils.RandomString(5)
+	subject, err := testQueries.CreateSubject(context.Background(), name)
 	require.NoError(t, err)
 	require.NotEmpty(t, subject)
 
-	require.Equal(t, arg.Name, subject.Name)
-	require.Equal(t, arg.Classes, subject.Classes)
+	require.Equal(t, name, subject.Name)
 
 	require.NotZero(t, subject.ID)
 	require.NotZero(t, subject.CreatedAt)
@@ -85,7 +82,6 @@ func createTestSubject(t *testing.T) Subject {
 
 func compareSubjects(t *testing.T, subject1, subject2 Subject) {
 	require.Equal(t, subject1.Name, subject2.Name)
-	require.Equal(t, subject1.Classes, subject2.Classes)
 	require.Equal(t, subject1.ID, subject2.ID)
 }
 

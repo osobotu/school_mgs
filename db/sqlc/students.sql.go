@@ -26,8 +26,8 @@ type CreateStudentParams struct {
 	FirstName    string         `json:"first_name"`
 	LastName     string         `json:"last_name"`
 	MiddleName   sql.NullString `json:"middle_name"`
-	ClassID      int32          `json:"class_id"`
-	DepartmentID int32          `json:"department_id"`
+	ClassID      sql.NullInt32  `json:"class_id"`
+	DepartmentID sql.NullInt32  `json:"department_id"`
 }
 
 func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error) {
@@ -138,8 +138,8 @@ type UpdateStudentParams struct {
 	FirstName    string         `json:"first_name"`
 	LastName     string         `json:"last_name"`
 	MiddleName   sql.NullString `json:"middle_name"`
-	ClassID      int32          `json:"class_id"`
-	DepartmentID int32          `json:"department_id"`
+	ClassID      sql.NullInt32  `json:"class_id"`
+	DepartmentID sql.NullInt32  `json:"department_id"`
 }
 
 func (q *Queries) UpdateStudent(ctx context.Context, arg UpdateStudentParams) (Student, error) {

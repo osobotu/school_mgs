@@ -55,13 +55,37 @@ func (q *Queries) GetSubjectById(ctx context.Context, id int32) (Subject, error)
 	return i, err
 }
 
+const getSubjectByName = `-- name: GetSubjectByName :one
+SELECT id, name, created_at, updated_at FROM subjects
+WHERE name = $1 LIMIT 1
+`
+
+func (q *Queries) GetSubjectByName(ctx context.Context, name string) (Subject, error) {
+	row := q.db.QueryRowContext(ctx, getSubjectByName, name)
+	var i Subject
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const listSubjects = `-- name: ListSubjects :many
 SELECT id, name, created_at, updated_at FROM subjects
 ORDER by name ASC
+LIMIT $1
+OFFSET $2
 `
 
-func (q *Queries) ListSubjects(ctx context.Context) ([]Subject, error) {
-	rows, err := q.db.QueryContext(ctx, listSubjects)
+type ListSubjectsParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListSubjects(ctx context.Context, arg ListSubjectsParams) ([]Subject, error) {
+	rows, err := q.db.QueryContext(ctx, listSubjects, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

@@ -75,8 +75,8 @@ type Student struct {
 	FirstName    string         `json:"first_name"`
 	LastName     string         `json:"last_name"`
 	MiddleName   sql.NullString `json:"middle_name"`
-	ClassID      int32          `json:"class_id"`
-	DepartmentID int32          `json:"department_id"`
+	ClassID      sql.NullInt32  `json:"class_id"`
+	DepartmentID sql.NullInt32  `json:"department_id"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
 }
@@ -100,8 +100,8 @@ type Teacher struct {
 	FirstName    string         `json:"first_name"`
 	LastName     string         `json:"last_name"`
 	MiddleName   sql.NullString `json:"middle_name"`
-	SubjectID    int32          `json:"subject_id"`
-	DepartmentID int32          `json:"department_id"`
+	SubjectID    sql.NullInt32  `json:"subject_id"`
+	DepartmentID sql.NullInt32  `json:"department_id"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
 }
@@ -122,14 +122,14 @@ type Term struct {
 }
 
 type TermScore struct {
-	ID         int32           `json:"id"`
-	Assessment sql.NullFloat64 `json:"assessment"`
-	Exam       sql.NullFloat64 `json:"exam"`
-	SubjectID  int32           `json:"subject_id"`
-	TermID     int32           `json:"term_id"`
-	SessionID  int32           `json:"session_id"`
-	ClassID    int32           `json:"class_id"`
-	ArmID      int32           `json:"arm_id"`
-	CreatedAt  time.Time       `json:"created_at"`
-	UpdatedAt  time.Time       `json:"updated_at"`
+	ID         int32     `json:"id"`
+	Assessment float64   `json:"assessment"`
+	Exam       float64   `json:"exam"`
+	SubjectID  int32     `json:"subject_id"`
+	TermID     int32     `json:"term_id"`
+	SessionID  int32     `json:"session_id"`
+	ClassID    int32     `json:"class_id"`
+	ArmID      int32     `json:"arm_id"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }

@@ -104,6 +104,7 @@ func createTestTermScore(t *testing.T) TermScore {
 	term := createTestTerm(t)
 	session := createTestSession(t)
 	class := createTestClass(t)
+	arm := createTestArm(t)
 
 	arg := CreateTermScoreParams{
 		Assessment: ass,
@@ -112,6 +113,7 @@ func createTestTermScore(t *testing.T) TermScore {
 		TermID:     term.ID,
 		SessionID:  session.ID,
 		ClassID:    class.ID,
+		ArmID:      arm.ID,
 	}
 
 	termScore, err := testQueries.CreateTermScore(context.Background(), arg)
@@ -150,6 +152,7 @@ func createTestTermScoreWithSubjectIDAndClassID(t *testing.T, subjectID, classID
 	// const demoId = 1
 	term := createTestTerm(t)
 	session := createTestSession(t)
+	arm := createTestArm(t)
 
 	arg := CreateTermScoreParams{
 		Assessment: ass,
@@ -158,6 +161,7 @@ func createTestTermScoreWithSubjectIDAndClassID(t *testing.T, subjectID, classID
 		TermID:     term.ID,
 		SessionID:  session.ID,
 		ClassID:    classID,
+		ArmID:      arm.ID,
 	}
 
 	termScore, err := testQueries.CreateTermScore(context.Background(), arg)

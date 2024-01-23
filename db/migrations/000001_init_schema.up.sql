@@ -3,8 +3,8 @@ CREATE TABLE "teachers" (
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "middle_name" varchar,
-  "subject_id" integer NOT NULL,
-  "department_id" integer NOT NULL,
+  "subject_id" integer,
+  "department_id" integer,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -77,8 +77,8 @@ CREATE TABLE "students" (
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "middle_name" varchar,
-  "class_id" integer NOT NULL,
-  "department_id" integer NOT NULL,
+  "class_id" integer,
+  "department_id" integer,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -101,8 +101,8 @@ CREATE TABLE "terms" (
 
 CREATE TABLE "term_scores" (
   "id" serial PRIMARY KEY,
-  "assessment" float,
-  "exam" float,
+  "assessment" float NOT NULL,
+  "exam" float NOT NULL,
   "subject_id" integer NOT NULL,
   "term_id" integer NOT NULL,
   "session_id" integer NOT NULL,
@@ -155,9 +155,9 @@ ALTER TABLE "class_has_arms" ADD FOREIGN KEY ("class_id") REFERENCES "classes" (
 
 ALTER TABLE "class_has_arms" ADD FOREIGN KEY ("arm_id") REFERENCES "arms" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "department_has_subjects" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE SET NULL;
+ALTER TABLE "department_has_subjects" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "department_has_subjects" ADD FOREIGN KEY ("department_id") REFERENCES "departments" ("id") ON DELETE SET NULL;
+ALTER TABLE "department_has_subjects" ADD FOREIGN KEY ("department_id") REFERENCES "departments" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "students" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id") ON DELETE SET NULL;
 
@@ -167,15 +167,15 @@ ALTER TABLE "student_offers_subject" ADD FOREIGN KEY ("student_id") REFERENCES "
 
 ALTER TABLE "student_offers_subject" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE SET NULL;
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("term_id") REFERENCES "terms" ("id") ON DELETE SET NULL;
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("term_id") REFERENCES "terms" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("session_id") REFERENCES "sessions" ("id") ON DELETE SET NULL;
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("session_id") REFERENCES "sessions" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id") ON DELETE SET NULL;
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("class_id") REFERENCES "classes" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "term_scores" ADD FOREIGN KEY ("arm_id") REFERENCES "arms" ("id") ON DELETE SET NULL;
+ALTER TABLE "term_scores" ADD FOREIGN KEY ("arm_id") REFERENCES "arms" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "scores" ADD FOREIGN KEY ("student_id") REFERENCES "students" ("id") ON DELETE CASCADE;
 
