@@ -19,7 +19,7 @@ func TestDeleteSession(t *testing.T) {
 	err := testQueries.DeleteSession(context.Background(), session1.ID)
 	require.NoError(t, err)
 
-	session2, err := testQueries.GetSessionById(context.Background(), session1.ID)
+	session2, err := testQueries.GetSessionByID(context.Background(), session1.ID)
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, session2)
@@ -29,7 +29,7 @@ func TestDeleteSession(t *testing.T) {
 
 func TestGetSessionById(t *testing.T) {
 	session1 := createTestSession(t)
-	session2, err := testQueries.GetSessionById(context.Background(), session1.ID)
+	session2, err := testQueries.GetSessionByID(context.Background(), session1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, session2)
 

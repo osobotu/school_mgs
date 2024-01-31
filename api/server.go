@@ -17,11 +17,11 @@ type listRequest struct {
 }
 
 type Server struct {
-	store  *db.Store
+	store  db.Store
 	router *gin.Engine
 }
 
-func NewServer(store *db.Store) *Server {
+func NewServer(store db.Store) *Server {
 	server := &Server{store: store}
 	router := gin.Default()
 
@@ -48,7 +48,7 @@ func NewServer(store *db.Store) *Server {
 		v1.POST("/classes", server.createClass)
 		v1.GET("/classes/:id", server.getClassByID)
 		v1.GET("/classes", server.getClassByName)
-		v1.GET("/classes", server.listClasses)
+		v1.GET("/all-classes", server.listClasses)
 		v1.DELETE("/classes/:id", server.deleteClassByID)
 
 		// ! sessions

@@ -58,7 +58,7 @@ func (server *Server) getStudentByID(ctx *gin.Context) {
 		return
 	}
 
-	student, err := server.store.GetStudentById(ctx, req.ID)
+	student, err := server.store.GetStudentByID(ctx, req.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -126,7 +126,7 @@ func (server *Server) updateStudent(ctx *gin.Context) {
 		return
 	}
 
-	student, err := server.store.GetStudentById(ctx, reqID.ID)
+	student, err := server.store.GetStudentByID(ctx, reqID.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))

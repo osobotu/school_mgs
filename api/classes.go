@@ -39,7 +39,7 @@ func (server *Server) getClassByID(ctx *gin.Context) {
 		return
 	}
 
-	class, err := server.store.GetClassById(ctx, req.ID)
+	class, err := server.store.GetClassByID(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))

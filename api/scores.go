@@ -40,7 +40,7 @@ func (server *Server) getScoreByStudentID(ctx *gin.Context) {
 		return
 	}
 
-	score, err := server.store.GetScoreByStudentId(ctx, req.ID)
+	score, err := server.store.GetScoreByStudentID(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -50,7 +50,7 @@ func (server *Server) getScoreByStudentID(ctx *gin.Context) {
 		return
 	}
 
-	termScore, err := server.store.GetTermScoreById(ctx, score.TermScoresID)
+	termScore, err := server.store.GetTermScoreByID(ctx, score.TermScoresID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))

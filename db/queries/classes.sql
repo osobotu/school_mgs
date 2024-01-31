@@ -5,7 +5,7 @@ INSERT INTO classes (
     $1
 ) RETURNING *;
 
--- name: GetClassById :one
+-- name: GetClassByID :one
 SELECT * FROM classes
 WHERE id = $1 LIMIT 1;
 

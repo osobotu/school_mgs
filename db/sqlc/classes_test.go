@@ -16,7 +16,7 @@ func TestCreateClass(t *testing.T) {
 
 func TestGetClassById(t *testing.T) {
 	class1 := createTestClass(t)
-	class2, err := testQueries.GetClassById(context.Background(), class1.ID)
+	class2, err := testQueries.GetClassByID(context.Background(), class1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, class2)
 
@@ -40,7 +40,7 @@ func TestDeleteClass(t *testing.T) {
 	err := testQueries.DeleteClass(context.Background(), class1.ID)
 	require.NoError(t, err)
 
-	class1, err = testQueries.GetClassById(context.Background(), class1.ID)
+	class1, err = testQueries.GetClassByID(context.Background(), class1.ID)
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, class1)

@@ -18,7 +18,7 @@ func TestCreateSubject(t *testing.T) {
 func TestGetSubjectById(t *testing.T) {
 
 	subject1 := createTestSubject(t)
-	subject2, err := testQueries.GetSubjectById(context.Background(), subject1.ID)
+	subject2, err := testQueries.GetSubjectByID(context.Background(), subject1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, subject2)
 
@@ -40,7 +40,7 @@ func TestDeleteSubject(t *testing.T) {
 	err := testQueries.DeleteSubject(context.Background(), subject1.ID)
 	require.NoError(t, err)
 
-	subject2, err := testQueries.GetSubjectById(context.Background(), subject1.ID)
+	subject2, err := testQueries.GetSubjectByID(context.Background(), subject1.ID)
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, subject2)

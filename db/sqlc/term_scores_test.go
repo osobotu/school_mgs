@@ -20,7 +20,7 @@ func TestDeleteTermScore(t *testing.T) {
 	err := testQueries.DeleteTermScore(context.Background(), termScore1.ID)
 	require.NoError(t, err)
 
-	termScore2, err := testQueries.GetTermScoreById(context.Background(), termScore1.ID)
+	termScore2, err := testQueries.GetTermScoreByID(context.Background(), termScore1.ID)
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, termScore2)
@@ -30,7 +30,7 @@ func TestDeleteTermScore(t *testing.T) {
 
 func TestGetTermScoreByID(t *testing.T) {
 	termScore1 := createTestTermScore(t)
-	termScore2, err := testQueries.GetTermScoreById(context.Background(), termScore1.ID)
+	termScore2, err := testQueries.GetTermScoreByID(context.Background(), termScore1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, termScore2)
 
@@ -76,14 +76,14 @@ func TestUpdateScoreById(t *testing.T) {
 
 	ass := float64(utils.RandomInt(0, 40))
 	exam := float64(utils.RandomInt(30, 60))
-	arg := UpdateTermScoreByIdParams{
+	arg := UpdateTermScoreByIDParams{
 		ID:         termScore1.ID,
 		Assessment: ass,
 		Exam:       exam,
 		UpdatedAt:  time.Now().UTC(),
 	}
 
-	termScore2, err := testQueries.UpdateTermScoreById(context.Background(), arg)
+	termScore2, err := testQueries.UpdateTermScoreByID(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, termScore2)
 

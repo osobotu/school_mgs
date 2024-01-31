@@ -16,7 +16,7 @@ func TestCreateStudent(t *testing.T) {
 
 func TestGetStudentById(t *testing.T) {
 	student1 := createTestStudent(t)
-	student2, err := testQueries.GetStudentById(context.Background(), student1.ID)
+	student2, err := testQueries.GetStudentByID(context.Background(), student1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, student2)
 

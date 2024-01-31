@@ -64,7 +64,7 @@ func (server *Server) getSessionByID(ctx *gin.Context) {
 		return
 	}
 
-	session, err := server.store.GetSessionById(ctx, req.ID)
+	session, err := server.store.GetSessionByID(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))

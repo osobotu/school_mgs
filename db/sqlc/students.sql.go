@@ -61,13 +61,13 @@ func (q *Queries) DeleteStudent(ctx context.Context, id int32) error {
 	return err
 }
 
-const getStudentById = `-- name: GetStudentById :one
+const getStudentByID = `-- name: GetStudentByID :one
 SELECT id, first_name, last_name, middle_name, class_id, department_id, created_at, updated_at FROM students
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetStudentById(ctx context.Context, id int32) (Student, error) {
-	row := q.db.QueryRowContext(ctx, getStudentById, id)
+func (q *Queries) GetStudentByID(ctx context.Context, id int32) (Student, error) {
+	row := q.db.QueryRowContext(ctx, getStudentByID, id)
 	var i Student
 	err := row.Scan(
 		&i.ID,

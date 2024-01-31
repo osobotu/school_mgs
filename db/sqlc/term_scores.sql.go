@@ -69,13 +69,13 @@ func (q *Queries) DeleteTermScore(ctx context.Context, id int32) error {
 	return err
 }
 
-const getTermScoreById = `-- name: GetTermScoreById :one
+const getTermScoreByID = `-- name: GetTermScoreByID :one
 SELECT id, assessment, exam, subject_id, term_id, session_id, class_id, arm_id, created_at, updated_at FROM term_scores 
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetTermScoreById(ctx context.Context, id int32) (TermScore, error) {
-	row := q.db.QueryRowContext(ctx, getTermScoreById, id)
+func (q *Queries) GetTermScoreByID(ctx context.Context, id int32) (TermScore, error) {
+	row := q.db.QueryRowContext(ctx, getTermScoreByID, id)
 	var i TermScore
 	err := row.Scan(
 		&i.ID,
@@ -146,22 +146,22 @@ func (q *Queries) ListTermScoresForSubjectAndClass(ctx context.Context, arg List
 	return items, nil
 }
 
-const updateTermScoreById = `-- name: UpdateTermScoreById :one
+const updateTermScoreByID = `-- name: UpdateTermScoreByID :one
 UPDATE term_scores
 SET assessment = $2, exam = $3, updated_at = $4
 WHERE id = $1
 RETURNING id, assessment, exam, subject_id, term_id, session_id, class_id, arm_id, created_at, updated_at
 `
 
-type UpdateTermScoreByIdParams struct {
+type UpdateTermScoreByIDParams struct {
 	ID         int32     `json:"id"`
 	Assessment float64   `json:"assessment"`
 	Exam       float64   `json:"exam"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
-func (q *Queries) UpdateTermScoreById(ctx context.Context, arg UpdateTermScoreByIdParams) (TermScore, error) {
-	row := q.db.QueryRowContext(ctx, updateTermScoreById,
+func (q *Queries) UpdateTermScoreByID(ctx context.Context, arg UpdateTermScoreByIDParams) (TermScore, error) {
+	row := q.db.QueryRowContext(ctx, updateTermScoreByID,
 		arg.ID,
 		arg.Assessment,
 		arg.Exam,

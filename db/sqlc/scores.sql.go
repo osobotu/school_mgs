@@ -44,13 +44,13 @@ func (q *Queries) DeleteScore(ctx context.Context, studentID int32) error {
 	return err
 }
 
-const getScoreByStudentId = `-- name: GetScoreByStudentId :one
+const getScoreByStudentID = `-- name: GetScoreByStudentID :one
 SELECT student_id, term_scores_id, created_at, updated_at FROM scores
 WHERE student_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetScoreByStudentId(ctx context.Context, studentID int32) (Score, error) {
-	row := q.db.QueryRowContext(ctx, getScoreByStudentId, studentID)
+func (q *Queries) GetScoreByStudentID(ctx context.Context, studentID int32) (Score, error) {
+	row := q.db.QueryRowContext(ctx, getScoreByStudentID, studentID)
 	var i Score
 	err := row.Scan(
 		&i.StudentID,

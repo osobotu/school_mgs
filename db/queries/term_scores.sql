@@ -11,11 +11,11 @@ INSERT INTO term_scores (
     $1, $2, $3, $4, $5, $6, $7
 ) RETURNING *;
 
--- name: GetTermScoreById :one
+-- name: GetTermScoreByID :one
 SELECT * FROM term_scores 
 WHERE id = $1 LIMIT 1;
 
--- name: UpdateTermScoreById :one
+-- name: UpdateTermScoreByID :one
 UPDATE term_scores
 SET assessment = $2, exam = $3, updated_at = $4
 WHERE id = $1

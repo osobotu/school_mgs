@@ -2,7 +2,6 @@ package api
 
 import (
 	"database/sql"
-	"fmt"
 
 	"net/http"
 	"strings"
@@ -32,7 +31,7 @@ func (server *Server) createSubject(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, subject)
+	ctx.JSON(http.StatusCreated, subject)
 }
 
 type getSubjectByIDRequest struct {
@@ -46,7 +45,7 @@ func (server *Server) getSubjectByID(ctx *gin.Context) {
 		return
 	}
 
-	subject, err := server.store.GetSubjectById(ctx, req.ID)
+	subject, err := server.store.GetSubjectByID(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -104,7 +103,6 @@ func (server *Server) listSubjects(ctx *gin.Context) {
 
 	subjects, err := server.store.ListSubjects(ctx, arg)
 
-	fmt.Println(subjects)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

@@ -77,7 +77,7 @@ func (server *Server) getTeacherByID(ctx *gin.Context) {
 		return
 	}
 
-	teacher, err := server.store.GetTeacherById(ctx, req.ID)
+	teacher, err := server.store.GetTeacherByID(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -183,7 +183,7 @@ func (server *Server) updateTeacherByID(ctx *gin.Context) {
 		return
 	}
 
-	teacher, err := server.store.GetTeacherById(ctx, reqID.ID)
+	teacher, err := server.store.GetTeacherByID(ctx, reqID.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))

@@ -7,7 +7,7 @@ INSERT INTO sessions (
     $1, $2, $3
 ) RETURNING *;
 
--- name: GetSessionById :one
+-- name: GetSessionByID :one
 SELECT * FROM sessions
 WHERE id = $1 LIMIT 1;
 

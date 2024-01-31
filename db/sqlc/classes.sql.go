@@ -38,13 +38,13 @@ func (q *Queries) DeleteClass(ctx context.Context, id int32) error {
 	return err
 }
 
-const getClassById = `-- name: GetClassById :one
+const getClassByID = `-- name: GetClassByID :one
 SELECT id, name, created_at, updated_at FROM classes
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetClassById(ctx context.Context, id int32) (Class, error) {
-	row := q.db.QueryRowContext(ctx, getClassById, id)
+func (q *Queries) GetClassByID(ctx context.Context, id int32) (Class, error) {
+	row := q.db.QueryRowContext(ctx, getClassByID, id)
 	var i Class
 	err := row.Scan(
 		&i.ID,

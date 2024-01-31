@@ -6,7 +6,7 @@ INSERT INTO scores (
     $1, $2
 ) RETURNING *;
 
--- name: GetScoreByStudentId :one
+-- name: GetScoreByStudentID :one
 SELECT * FROM scores
 WHERE student_id = $1 LIMIT 1;
 

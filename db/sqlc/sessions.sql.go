@@ -49,13 +49,13 @@ func (q *Queries) DeleteSession(ctx context.Context, id int32) error {
 	return err
 }
 
-const getSessionById = `-- name: GetSessionById :one
+const getSessionByID = `-- name: GetSessionByID :one
 SELECT id, session, start_date, end_date, created_at, updated_at FROM sessions
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetSessionById(ctx context.Context, id int32) (Session, error) {
-	row := q.db.QueryRowContext(ctx, getSessionById, id)
+func (q *Queries) GetSessionByID(ctx context.Context, id int32) (Session, error) {
+	row := q.db.QueryRowContext(ctx, getSessionByID, id)
 	var i Session
 	err := row.Scan(
 		&i.ID,

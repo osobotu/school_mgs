@@ -38,13 +38,13 @@ func (q *Queries) DeleteSubject(ctx context.Context, id int32) error {
 	return err
 }
 
-const getSubjectById = `-- name: GetSubjectById :one
+const getSubjectByID = `-- name: GetSubjectByID :one
 SELECT id, name, created_at, updated_at FROM subjects
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetSubjectById(ctx context.Context, id int32) (Subject, error) {
-	row := q.db.QueryRowContext(ctx, getSubjectById, id)
+func (q *Queries) GetSubjectByID(ctx context.Context, id int32) (Subject, error) {
+	row := q.db.QueryRowContext(ctx, getSubjectByID, id)
 	var i Subject
 	err := row.Scan(
 		&i.ID,

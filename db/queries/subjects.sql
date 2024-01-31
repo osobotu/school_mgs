@@ -5,7 +5,7 @@ INSERT INTO subjects (
     $1
 ) RETURNING *;
 
--- name: GetSubjectById :one
+-- name: GetSubjectByID :one
 SELECT * FROM subjects
 WHERE id = $1 LIMIT 1;
 

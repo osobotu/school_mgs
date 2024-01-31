@@ -50,7 +50,7 @@ func (server *Server) getTermScoreByID(ctx *gin.Context) {
 		return
 	}
 
-	termScore, err := server.store.GetTermScoreById(ctx, req.ID)
+	termScore, err := server.store.GetTermScoreByID(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -132,7 +132,7 @@ func (server *Server) updateTermScoreByID(ctx *gin.Context) {
 		return
 	}
 
-	termScore, err := server.store.GetTermScoreById(ctx, req.ID)
+	termScore, err := server.store.GetTermScoreByID(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -142,7 +142,7 @@ func (server *Server) updateTermScoreByID(ctx *gin.Context) {
 		return
 	}
 
-	arg := db.UpdateTermScoreByIdParams{
+	arg := db.UpdateTermScoreByIDParams{
 		ID:         termScore.ID,
 		Assessment: termScore.Assessment,
 		Exam:       termScore.Exam,
@@ -156,7 +156,7 @@ func (server *Server) updateTermScoreByID(ctx *gin.Context) {
 		arg.Exam = *reqData.Exam
 	}
 
-	termScore, err = server.store.UpdateTermScoreById(ctx, arg)
+	termScore, err = server.store.UpdateTermScoreByID(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

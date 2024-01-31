@@ -16,7 +16,7 @@ func TestCreateTeacher(t *testing.T) {
 
 func TestGetTeacherById(t *testing.T) {
 	teacher1 := createTestTeacher(t)
-	teacher2, err := testQueries.GetTeacherById(context.Background(), teacher1.ID)
+	teacher2, err := testQueries.GetTeacherByID(context.Background(), teacher1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, teacher2)
 
@@ -53,7 +53,7 @@ func TestDeleteTeacher(t *testing.T) {
 	err := testQueries.DeleteTeacher(context.Background(), teacher1.ID)
 	require.NoError(t, err)
 
-	teacher2, err := testQueries.GetTeacherById(context.Background(), teacher1.ID)
+	teacher2, err := testQueries.GetTeacherByID(context.Background(), teacher1.ID)
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, teacher2)
