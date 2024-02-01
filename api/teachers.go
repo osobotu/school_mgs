@@ -34,7 +34,7 @@ func (server *Server) createTeacher(ctx *gin.Context) {
 	}
 	var departmentID sql.NullInt32
 	if req.DepartmentID != nil {
-		subjectID.Scan(*req.DepartmentID)
+		departmentID.Scan(*req.DepartmentID)
 	}
 
 	arg := db.CreateTeacherParams{

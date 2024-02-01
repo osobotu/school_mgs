@@ -422,7 +422,6 @@ func TestListSubjects(t *testing.T) {
 			// start test server and send request
 			server := NewServer(store)
 			recorder := httptest.NewRecorder()
-
 			url := fmt.Sprintf("/v1/subjects?page_id=%d&page_size=%d", tc.pageID, tc.pageSize)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
