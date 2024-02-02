@@ -123,10 +123,10 @@ CREATE TABLE "sessions" (
 
 CREATE TABLE "scores" (
   "student_id" integer NOT NULL,
-  "term_scores_id" integer NOT NULL,
+  "term_score_id" integer NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now()),
-  PRIMARY KEY ("student_id", "term_scores_id")
+  PRIMARY KEY ("student_id", "term_score_id")
 );
 
 CREATE INDEX ON "teachers" ("first_name");
@@ -179,4 +179,4 @@ ALTER TABLE "term_scores" ADD FOREIGN KEY ("arm_id") REFERENCES "arms" ("id") ON
 
 ALTER TABLE "scores" ADD FOREIGN KEY ("student_id") REFERENCES "students" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "scores" ADD FOREIGN KEY ("term_scores_id") REFERENCES "term_scores" ("id") ON DELETE CASCADE;
+ALTER TABLE "scores" ADD FOREIGN KEY ("term_score_id") REFERENCES "term_scores" ("id") ON DELETE CASCADE;

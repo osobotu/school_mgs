@@ -21,8 +21,8 @@ func (server *Server) createScore(ctx *gin.Context) {
 	}
 
 	arg := db.CreateScoreParams{
-		StudentID:    req.StudentID,
-		TermScoresID: req.TermScoreID,
+		StudentID:   req.StudentID,
+		TermScoreID: req.TermScoreID,
 	}
 
 	score, err := server.store.CreateScore(ctx, arg)
@@ -50,7 +50,7 @@ func (server *Server) getScoreByStudentID(ctx *gin.Context) {
 		return
 	}
 
-	termScore, err := server.store.GetTermScoreByID(ctx, score.TermScoresID)
+	termScore, err := server.store.GetTermScoreByID(ctx, score.TermScoreID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))

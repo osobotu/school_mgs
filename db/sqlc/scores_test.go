@@ -41,8 +41,8 @@ func createTestScore(t *testing.T) Score {
 	termScore := createTestTermScore(t)
 
 	arg := CreateScoreParams{
-		StudentID:    student.ID,
-		TermScoresID: termScore.ID,
+		StudentID:   student.ID,
+		TermScoreID: termScore.ID,
 	}
 
 	score, err := testQueries.CreateScore(context.Background(), arg)
@@ -50,7 +50,7 @@ func createTestScore(t *testing.T) Score {
 	require.NotEmpty(t, score)
 
 	require.Equal(t, arg.StudentID, score.StudentID)
-	require.Equal(t, arg.TermScoresID, score.TermScoresID)
+	require.Equal(t, arg.TermScoreID, score.TermScoreID)
 
 	testQueries.RunCleaners(t, &student, &termScore)
 	return score
@@ -58,7 +58,7 @@ func createTestScore(t *testing.T) Score {
 
 func compareScores(t *testing.T, score1, score2 Score) {
 	require.Equal(t, score1.StudentID, score2.StudentID)
-	require.Equal(t, score1.TermScoresID, score2.TermScoresID)
+	require.Equal(t, score1.TermScoreID, score2.TermScoreID)
 }
 
 func (s *Score) Clean() {

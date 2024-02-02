@@ -55,10 +55,10 @@ type FormMaster struct {
 }
 
 type Score struct {
-	StudentID    int32     `json:"student_id"`
-	TermScoresID int32     `json:"term_scores_id"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	StudentID   int32     `json:"student_id"`
+	TermScoreID int32     `json:"term_score_id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type Session struct {

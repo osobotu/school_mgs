@@ -18,100 +18,8 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func TestGetSubjectByID(t *testing.T) {
-	subject := randomSubject()
-
-	testCases := []struct {
-		name          string
-		subjectID     int32
-		buildStub     func(store *mockdb.MockStore)
-		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
-	}{
-		{
-			name:      "OK",
-			subjectID: subject.ID,
-			buildStub: func(store *mockdb.MockStore) {
-				// build stubs
-				store.EXPECT().
-					GetSubjectByID(gomock.Any(), gomock.Eq(subject.ID)).
-					Times(1).
-					Return(subject, nil)
-			},
-			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusOK, recorder.Code)
-				requireBodyMatch(t, recorder.Body, subject)
-			},
-		},
-		{
-			name:      "Not Found",
-			subjectID: subject.ID,
-			buildStub: func(store *mockdb.MockStore) {
-				// build stubs
-				store.EXPECT().
-					GetSubjectByID(gomock.Any(), gomock.Eq(subject.ID)).
-					Times(1).
-					Return(db.Subject{}, sql.ErrNoRows)
-			},
-			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusNotFound, recorder.Code)
-			},
-		},
-		{
-			name:      "Internal Server Error",
-			subjectID: subject.ID,
-			buildStub: func(store *mockdb.MockStore) {
-				// build stubs
-				store.EXPECT().
-					GetSubjectByID(gomock.Any(), gomock.Eq(subject.ID)).
-					Times(1).
-					Return(db.Subject{}, sql.ErrConnDone)
-			},
-			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusInternalServerError, recorder.Code)
-			},
-		},
-		{
-			name:      "Invalid ID",
-			subjectID: 0,
-			buildStub: func(store *mockdb.MockStore) {
-				// build stubs
-				store.EXPECT().
-					GetSubjectByID(gomock.Any(), gomock.Any).
-					Times(0)
-			},
-			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
-			},
-		},
-	}
-
-	for i := range testCases {
-		tc := testCases[i]
-		t.Run(tc.name, func(t *testing.T) {
-
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			store := mockdb.NewMockStore(ctrl)
-			tc.buildStub(store)
-
-			// start test server and send request
-			server := NewServer(store)
-			recorder := httptest.NewRecorder()
-
-			url := fmt.Sprintf("/v1/subjects/%d", tc.subjectID)
-			request, err := http.NewRequest(http.MethodGet, url, nil)
-			require.NoError(t, err)
-
-			server.router.ServeHTTP(recorder, request)
-			tc.checkResponse(t, recorder)
-		})
-	}
-
-}
-
-func TestCreateSubject(t *testing.T) {
-	subject := randomSubject()
+func TestCreateClass(t *testing.T) {
+	class := randomClass()
 
 	testCases := []struct {
 		name          string
@@ -122,17 +30,16 @@ func TestCreateSubject(t *testing.T) {
 		{
 			name: "OK",
 			body: gin.H{
-				"name": subject.Name,
+				"name": class.Name,
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
-					CreateSubject(gomock.Any(), gomock.Eq(subject.Name)).
+					CreateClass(gomock.Any(), gomock.Eq(class.Name)).
 					Times(1).
-					Return(subject, nil)
+					Return(class, nil)
 			},
 			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusCreated, recorder.Code)
-				requireBodyMatch(t, recorder.Body, subject)
+				require.Equal(t, http.StatusOK, recorder.Code)
 			},
 		},
 		{
@@ -140,7 +47,7 @@ func TestCreateSubject(t *testing.T) {
 			body: gin.H{},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
-					CreateSubject(gomock.Any(), gomock.Any()).
+					CreateClass(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
 			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
@@ -150,11 +57,11 @@ func TestCreateSubject(t *testing.T) {
 		{
 			name: "Invalid body",
 			body: gin.H{
-				"subject_name": "test_invalid_name",
+				"class_name": "test_invalid_name",
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
-					CreateSubject(gomock.Any(), gomock.Any()).
+					CreateClass(gomock.Any(), gomock.Any()).
 					Times(0)
 			},
 			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
@@ -164,33 +71,16 @@ func TestCreateSubject(t *testing.T) {
 		{
 			name: "Internal Server Error",
 			body: gin.H{
-				"name": subject.Name,
+				"name": class.Name,
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
-					CreateSubject(gomock.Any(), gomock.Eq(subject.Name)).
+					CreateClass(gomock.Any(), gomock.Eq(class.Name)).
 					Times(1).
-					Return(db.Subject{}, sql.ErrConnDone)
+					Return(db.Class{}, sql.ErrConnDone)
 			},
 			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
-
-			},
-		},
-		{
-			name: "Subject already exists",
-			body: gin.H{
-				"name": subject.Name,
-			},
-			buildStub: func(store *mockdb.MockStore) {
-				store.EXPECT().
-					CreateSubject(gomock.Any(), gomock.Eq(subject.Name)).
-					Times(1).
-					Return(db.Subject{}, ErrDuplicateValue{})
-			},
-			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
-
 			},
 		},
 	}
@@ -198,13 +88,12 @@ func TestCreateSubject(t *testing.T) {
 	for i := range testCases {
 		tc := testCases[i]
 		t.Run(tc.name, func(t *testing.T) {
-
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStub(store)
 
+			// start test server and send request
 			server := NewServer(store)
 			recorder := httptest.NewRecorder()
 
@@ -212,34 +101,201 @@ func TestCreateSubject(t *testing.T) {
 			data, err := json.Marshal(tc.body)
 			require.NoError(t, err)
 
-			url := "/v1/subjects"
+			url := "/v1/classes"
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
 			server.router.ServeHTTP(recorder, request)
-
 			tc.checkResponse(t, recorder)
 		})
 	}
-
 }
 
-func TestDeleteSubjectByID(t *testing.T) {
-	subject := randomSubject()
-
+func TestGetClassByID(t *testing.T) {
+	class := randomClass()
 	testCases := []struct {
 		name          string
-		subjectID     int32
+		classID       int32
+		buildStub     func(store *mockdb.MockStore)
+		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name:    "OK",
+			classID: class.ID,
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetClassByID(gomock.Any(), gomock.Eq(class.ID)).
+					Times(1).
+					Return(class, nil)
+			},
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				compareClassResponse(t, recorder.Body, class)
+			},
+		},
+		{
+			name:    "Invalid ID",
+			classID: -1,
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetClassByID(gomock.Any(), gomock.Eq(-1)).
+					Times(0)
+			},
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name:    "Not found",
+			classID: class.ID + 1,
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetClassByID(gomock.Any(), gomock.Eq(class.ID+1)).
+					Times(1).
+					Return(db.Class{}, sql.ErrNoRows)
+			},
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name:    "Internal Server Error",
+			classID: class.ID,
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetClassByID(gomock.Any(), gomock.Eq(class.ID)).
+					Times(1).
+					Return(db.Class{}, sql.ErrConnDone)
+			},
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			store := mockdb.NewMockStore(ctrl)
+			tc.buildStub(store)
+
+			// start test server and send request
+			server := NewServer(store)
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprintf("/v1/classes/%d", tc.classID)
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
+func TestGetClassByName(t *testing.T) {
+	class := randomClass()
+	testCases := []struct {
+		name          string
+		className     string
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
-			subjectID: subject.ID,
+			className: class.Name,
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetClassByName(gomock.Any(), gomock.Eq(class.Name)).
+					Times(1).
+					Return(class, nil)
+			},
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				compareClassResponse(t, recorder.Body, class)
+			},
+		},
+
+		{
+			name:      "Not found",
+			className: "xxxxx",
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetClassByName(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(db.Class{}, sql.ErrNoRows)
+			},
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name:      "Internal Server Error",
+			className: class.Name,
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetClassByName(gomock.Any(), gomock.Eq(class.Name)).
+					Times(1).
+					Return(db.Class{}, sql.ErrConnDone)
+			},
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+		{
+			name:      "Empty name",
+			className: "",
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					GetClassByName(gomock.Any(), gomock.Eq("")).
+					Times(0)
+			},
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			store := mockdb.NewMockStore(ctrl)
+			tc.buildStub(store)
+
+			// start test server and send request
+			server := NewServer(store)
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprintf("/v1/classes?name=%s", tc.className)
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
+func TestDeleteClassByID(t *testing.T) {
+	class := randomClass()
+
+	testCases := []struct {
+		name          string
+		classID       int32
+		buildStub     func(store *mockdb.MockStore)
+		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name:    "OK",
+			classID: class.ID,
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
-					DeleteSubject(gomock.Any(), gomock.Eq(subject.ID)).
+					DeleteClass(gomock.Any(), gomock.Eq(class.ID)).
 					Times(1)
 			},
 			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
@@ -248,12 +304,12 @@ func TestDeleteSubjectByID(t *testing.T) {
 			},
 		},
 		{
-			name:      "Not found",
-			subjectID: subject.ID + 1,
+			name:    "Not found",
+			classID: class.ID + 1,
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
-					DeleteSubject(gomock.Any(), gomock.Any()).
+					DeleteClass(gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(sql.ErrNoRows)
 			},
@@ -263,12 +319,12 @@ func TestDeleteSubjectByID(t *testing.T) {
 			},
 		},
 		{
-			name:      "Invalid ID",
-			subjectID: -1,
+			name:    "Invalid ID",
+			classID: -1,
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
-					DeleteSubject(gomock.Any(), gomock.Any()).
+					DeleteClass(gomock.Any(), gomock.Any()).
 					Times(0)
 
 			},
@@ -278,12 +334,12 @@ func TestDeleteSubjectByID(t *testing.T) {
 			},
 		},
 		{
-			name:      "Internal Server Error",
-			subjectID: subject.ID,
+			name:    "Internal Server Error",
+			classID: class.ID,
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
-					DeleteSubject(gomock.Any(), gomock.Eq(subject.ID)).
+					DeleteClass(gomock.Any(), gomock.Eq(class.ID)).
 					Times(1).
 					Return(sql.ErrConnDone)
 
@@ -308,7 +364,7 @@ func TestDeleteSubjectByID(t *testing.T) {
 			server := NewServer(store)
 			recorder := httptest.NewRecorder()
 
-			url := fmt.Sprintf("/v1/subjects/%d", tc.subjectID)
+			url := fmt.Sprintf("/v1/classes/%d", tc.classID)
 			request, err := http.NewRequest(http.MethodDelete, url, nil)
 			require.NoError(t, err)
 
@@ -318,32 +374,32 @@ func TestDeleteSubjectByID(t *testing.T) {
 	}
 }
 
-func TestListSubjects(t *testing.T) {
-	subjects := make([]db.Subject, 0)
+func TestListClasses(t *testing.T) {
+	classes := make([]db.Class, 0)
 
 	for i := 0; i < 5; i++ {
-		subjects = append(subjects, randomSubject())
+		classes = append(classes, randomClass())
 	}
 
 	testCases := []struct {
 		name          string
 		pageID        int32
 		pageSize      int32
-		buildStub     func(store *mockdb.MockStore, params db.ListSubjectsParams)
-		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListSubjectsParams)
+		buildStub     func(store *mockdb.MockStore, params db.ListClassesParams)
+		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListClassesParams)
 	}{
 		{
 			name:     "OK",
 			pageID:   1,
 			pageSize: 5,
-			buildStub: func(store *mockdb.MockStore, params db.ListSubjectsParams) {
+			buildStub: func(store *mockdb.MockStore, params db.ListClassesParams) {
 
 				store.EXPECT().
-					ListSubjects(gomock.Any(), gomock.Eq(params)).
+					ListClasses(gomock.Any(), gomock.Eq(params)).
 					Times(1).
-					Return(subjects, nil)
+					Return(classes, nil)
 			},
-			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListSubjectsParams) {
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListClassesParams) {
 				require.Equal(t, http.StatusOK, recorder.Code)
 
 				// read body
@@ -351,13 +407,13 @@ func TestListSubjects(t *testing.T) {
 				require.NoError(t, err)
 
 				// unmarshal JSON
-				var gotSubjects []db.Subject
-				err = json.Unmarshal(data, &gotSubjects)
+				var gotClasses []db.Class
+				err = json.Unmarshal(data, &gotClasses)
 				require.NoError(t, err)
 
 				// compare length and values
-				require.Len(t, gotSubjects, int(params.Limit))
-				require.Equal(t, gotSubjects, subjects)
+				require.Len(t, gotClasses, int(params.Limit))
+				require.Equal(t, gotClasses, classes)
 
 			},
 		},
@@ -365,13 +421,13 @@ func TestListSubjects(t *testing.T) {
 			name:     "Invalid Page ID",
 			pageID:   0,
 			pageSize: 5,
-			buildStub: func(store *mockdb.MockStore, params db.ListSubjectsParams) {
+			buildStub: func(store *mockdb.MockStore, params db.ListClassesParams) {
 
 				store.EXPECT().
-					ListSubjects(gomock.Any(), gomock.Eq(params)).
+					ListClasses(gomock.Any(), gomock.Eq(params)).
 					Times(0)
 			},
-			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListSubjectsParams) {
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListClassesParams) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
@@ -379,13 +435,13 @@ func TestListSubjects(t *testing.T) {
 			name:     "Invalid Page Size",
 			pageID:   1,
 			pageSize: 15,
-			buildStub: func(store *mockdb.MockStore, params db.ListSubjectsParams) {
+			buildStub: func(store *mockdb.MockStore, params db.ListClassesParams) {
 
 				store.EXPECT().
-					ListSubjects(gomock.Any(), gomock.Eq(params)).
+					ListClasses(gomock.Any(), gomock.Eq(params)).
 					Times(0)
 			},
-			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListSubjectsParams) {
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListClassesParams) {
 				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
@@ -393,14 +449,14 @@ func TestListSubjects(t *testing.T) {
 			name:     "Internal Server Error",
 			pageID:   1,
 			pageSize: 5,
-			buildStub: func(store *mockdb.MockStore, params db.ListSubjectsParams) {
+			buildStub: func(store *mockdb.MockStore, params db.ListClassesParams) {
 
 				store.EXPECT().
-					ListSubjects(gomock.Any(), gomock.Eq(params)).
+					ListClasses(gomock.Any(), gomock.Eq(params)).
 					Times(1).
-					Return([]db.Subject{}, sql.ErrConnDone)
+					Return([]db.Class{}, sql.ErrConnDone)
 			},
-			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListSubjectsParams) {
+			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListClassesParams) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
@@ -413,7 +469,7 @@ func TestListSubjects(t *testing.T) {
 			defer ctrl.Finish()
 
 			store := mockdb.NewMockStore(ctrl)
-			params := db.ListSubjectsParams{
+			params := db.ListClassesParams{
 				Limit:  tc.pageSize,
 				Offset: (tc.pageID - 1) * tc.pageSize,
 			}
@@ -422,7 +478,7 @@ func TestListSubjects(t *testing.T) {
 			// start test server and send request
 			server := NewServer(store)
 			recorder := httptest.NewRecorder()
-			url := fmt.Sprintf("/v1/subjects?page_id=%d&page_size=%d", tc.pageID, tc.pageSize)
+			url := fmt.Sprintf("/v1/all-classes?page_id=%d&page_size=%d", tc.pageID, tc.pageSize)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
@@ -433,28 +489,23 @@ func TestListSubjects(t *testing.T) {
 
 }
 
-type ErrDuplicateValue struct {
-}
-
-func (e ErrDuplicateValue) Error() string {
-	return "duplicate key"
-}
-
-func randomSubject() db.Subject {
-	return db.Subject{
+func randomClass() db.Class {
+	return db.Class{
 		ID:        utils.RandomInt(1, 1000),
-		Name:      utils.RandomString(7),
+		Name:      utils.RandomString(4),
 		CreatedAt: utils.RandomTime(),
 		UpdatedAt: utils.RandomTime(),
 	}
 }
 
-func requireBodyMatch(t *testing.T, body *bytes.Buffer, subject db.Subject) {
+func compareClassResponse(t *testing.T, body *bytes.Buffer, class db.Class) {
 	data, err := io.ReadAll(body)
 	require.NoError(t, err)
 
-	var gotSubject db.Subject
-	err = json.Unmarshal(data, &gotSubject)
+	var gotClass db.Class
+	err = json.Unmarshal(data, &gotClass)
 	require.NoError(t, err)
-	require.Equal(t, subject, gotSubject)
+
+	require.Equal(t, class, gotClass)
+
 }

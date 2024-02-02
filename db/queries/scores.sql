@@ -1,7 +1,7 @@
 -- name: CreateScore :one
 INSERT INTO scores (
     student_id,
-    term_scores_id
+    term_score_id
 ) VALUES (
     $1, $2
 ) RETURNING *;

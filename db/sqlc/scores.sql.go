@@ -12,23 +12,23 @@ import (
 const createScore = `-- name: CreateScore :one
 INSERT INTO scores (
     student_id,
-    term_scores_id
+    term_score_id
 ) VALUES (
     $1, $2
-) RETURNING student_id, term_scores_id, created_at, updated_at
+) RETURNING student_id, term_score_id, created_at, updated_at
 `
 
 type CreateScoreParams struct {
-	StudentID    int32 `json:"student_id"`
-	TermScoresID int32 `json:"term_scores_id"`
+	StudentID   int32 `json:"student_id"`
+	TermScoreID int32 `json:"term_score_id"`
 }
 
 func (q *Queries) CreateScore(ctx context.Context, arg CreateScoreParams) (Score, error) {
-	row := q.db.QueryRowContext(ctx, createScore, arg.StudentID, arg.TermScoresID)
+	row := q.db.QueryRowContext(ctx, createScore, arg.StudentID, arg.TermScoreID)
 	var i Score
 	err := row.Scan(
 		&i.StudentID,
-		&i.TermScoresID,
+		&i.TermScoreID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -45,7 +45,7 @@ func (q *Queries) DeleteScore(ctx context.Context, studentID int32) error {
 }
 
 const getScoreByStudentID = `-- name: GetScoreByStudentID :one
-SELECT student_id, term_scores_id, created_at, updated_at FROM scores
+SELECT student_id, term_score_id, created_at, updated_at FROM scores
 WHERE student_id = $1 LIMIT 1
 `
 
@@ -54,7 +54,7 @@ func (q *Queries) GetScoreByStudentID(ctx context.Context, studentID int32) (Sco
 	var i Score
 	err := row.Scan(
 		&i.StudentID,
-		&i.TermScoresID,
+		&i.TermScoreID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
