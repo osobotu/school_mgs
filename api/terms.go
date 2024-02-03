@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -46,6 +47,10 @@ func (server *Server) getTermByID(ctx *gin.Context) {
 
 	term, err := server.store.GetTermByID(ctx, req.ID)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
@@ -62,6 +67,10 @@ func (server *Server) deleteTerm(ctx *gin.Context) {
 
 	err := server.store.DeleteTerm(ctx, req.ID)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
