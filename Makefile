@@ -19,6 +19,12 @@ migrate_up:
 migrate_down:
 	migrate -path db/migrations -database "postgresql://postgres:password@localhost:5432/school_mgs?sslmode=disable" -verbose down
 
+migrate_1up:
+	migrate -path db/migrations -database "postgresql://postgres:password@localhost:5432/school_mgs?sslmode=disable" -verbose up 1
+
+migrate_1down:
+	migrate -path db/migrations -database "postgresql://postgres:password@localhost:5432/school_mgs?sslmode=disable" -verbose down 1
+
 migrate_fix:
 	migrate -path db/migrations -database "postgresql://postgres:password@localhost:5432/school_mgs?sslmode=disable" force $(version)
 
@@ -35,4 +41,4 @@ mockdb:
 	mockgen -package mockdb -destination db/mock/store.go github.com/osobotu/school_mgs/db/sqlc Store
 
 
-.PHONY: postgres createdb dropdb migrate_down migrate_up start_container stop_container sqlc test server mockdb
+.PHONY: postgres createdb dropdb migrate_down migrate_up start_container stop_container sqlc test server mockdb migrate_1up migrate_1down

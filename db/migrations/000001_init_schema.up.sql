@@ -1,5 +1,6 @@
 CREATE TABLE "teachers" (
   "id" serial PRIMARY KEY,
+  "user_id" integer NOT NULL,
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "middle_name" varchar NOT NULL,
@@ -74,6 +75,7 @@ CREATE TABLE "department_has_subjects" (
 
 CREATE TABLE "students" (
   "id" serial PRIMARY KEY,
+  "user_id" integer NOT NULL,
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
   "middle_name" varchar NOT NULL,
