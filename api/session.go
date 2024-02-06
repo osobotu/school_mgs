@@ -27,21 +27,17 @@ func (server *Server) createSession(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	var sd sql.NullTime
-	sd.Scan(startDate)
 
 	endDate, err := time.Parse(time.RFC3339, req.EndDate)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	var ed sql.NullTime
-	ed.Scan(endDate)
 
 	arg := db.CreateSessionParams{
 		Session:   req.Session,
-		StartDate: sd,
-		EndDate:   ed,
+		StartDate: startDate,
+		EndDate:   endDate,
 	}
 
 	session, err := server.store.CreateSession(ctx, arg)

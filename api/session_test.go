@@ -252,7 +252,7 @@ func randomSession() db.Session {
 		Session:   utils.RandomString(5),
 		CreatedAt: utils.RandomTime(),
 		UpdatedAt: utils.RandomTime(),
-		StartDate: sql.NullTime{Time: utils.RandomTime(), Valid: true},
-		EndDate:   sql.NullTime{Time: utils.RandomTime().AddDate(1, 0, 0), Valid: true},
+		StartDate: utils.RandomTime(),
+		EndDate:   utils.RandomTime().AddDate(1, 0, 0),
 	}
 }

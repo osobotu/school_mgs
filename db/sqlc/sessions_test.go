@@ -41,16 +41,12 @@ func TestGetSessionById(t *testing.T) {
 func createTestSession(t *testing.T) Session {
 
 	start := time.Date(2023, 1, 9, 0, 0, 0, 0, time.UTC)
-	var sd sql.NullTime
-	sd.Scan(start)
-
-	var ed sql.NullTime
-	ed.Scan(start.AddDate(1, 0, 0))
+	end := start.AddDate(1, 0, 0)
 
 	arg := CreateSessionParams{
 		Session:   "2023/2024",
-		StartDate: sd,
-		EndDate:   ed,
+		StartDate: start,
+		EndDate:   end,
 	}
 
 	session, err := testQueries.CreateSession(context.Background(), arg)

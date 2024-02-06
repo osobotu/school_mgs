@@ -85,24 +85,14 @@ func TestListTeachers(t *testing.T) {
 func createTestTeacher(t *testing.T) Teacher {
 
 	subject := createTestSubject(t)
-
-	var middleName sql.NullString
-	middleName.Scan(utils.RandomString(5))
-
 	department := createTestDepartment(t)
-
-	var subjectID sql.NullInt32
-	subjectID.Scan(subject.ID)
-
-	var departmentID sql.NullInt32
-	departmentID.Scan(department.ID)
 
 	arg := CreateTeacherParams{
 		FirstName:    utils.RandomString(5),
 		LastName:     utils.RandomString(5),
-		MiddleName:   middleName,
-		SubjectID:    subjectID,
-		DepartmentID: departmentID,
+		MiddleName:   utils.RandomString(5),
+		SubjectID:    subject.ID,
+		DepartmentID: department.ID,
 	}
 
 	teacher, err := testQueries.CreateTeacher(context.Background(), arg)

@@ -23,23 +23,12 @@ func (server *Server) createStudent(ctx *gin.Context) {
 		return
 	}
 
-	var mn sql.NullString
-	if req.MiddleName != nil {
-		mn.Scan(*req.MiddleName)
-	}
-
-	var classID sql.NullInt32
-	classID.Scan(req.ClassID)
-
-	var departmentID sql.NullInt32
-	classID.Scan(req.DepartmentID)
-
 	arg := db.CreateStudentParams{
 		FirstName:    req.FirstName,
 		LastName:     req.LastName,
-		MiddleName:   mn,
-		ClassID:      classID,
-		DepartmentID: departmentID,
+		MiddleName:   *req.MiddleName,
+		ClassID:      req.ClassID,
+		DepartmentID: req.DepartmentID,
 	}
 
 	student, err := server.store.CreateStudent(ctx, arg)
@@ -155,21 +144,18 @@ func (server *Server) updateStudent(ctx *gin.Context) {
 	}
 
 	if reqData.MiddleName != nil {
-		var mn sql.NullString
-		mn.Scan(*reqData.MiddleName)
-		arg.MiddleName = mn
+
+		arg.MiddleName = *reqData.MiddleName
 	}
 
 	if reqData.ClassID != nil {
-		var cid sql.NullInt32
-		cid.Scan(*reqData.ClassID)
-		arg.ClassID = cid
+
+		arg.ClassID = *reqData.ClassID
 	}
 
 	if reqData.DepartmentID != nil {
-		var did sql.NullInt32
-		did.Scan(*reqData.DepartmentID)
-		arg.DepartmentID = did
+
+		arg.DepartmentID = *reqData.DepartmentID
 	}
 
 	student, err = server.store.UpdateStudent(ctx, arg)

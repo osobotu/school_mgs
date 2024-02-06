@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"testing"
 
 	"github.com/osobotu/school_mgs/db/utils"
@@ -55,19 +54,13 @@ func TestUpdateStudent(t *testing.T) {
 
 	student1 := createTestStudent(t)
 
-	var classID sql.NullInt32
-	classID.Scan(newClass.ID)
-
-	var departmentID sql.NullInt32
-	departmentID.Scan(newDepartment.ID)
-
 	arg := UpdateStudentParams{
 		ID:           student1.ID,
 		FirstName:    newFirstName,
 		LastName:     newLastName,
 		MiddleName:   student1.MiddleName,
-		ClassID:      classID,
-		DepartmentID: departmentID,
+		ClassID:      newClass.ID,
+		DepartmentID: newDepartment.ID,
 	}
 
 	student2, err := testQueries.UpdateStudent(context.Background(), arg)
@@ -86,17 +79,11 @@ func createTestStudent(t *testing.T) Student {
 	class := createTestClass(t)
 	department := createTestDepartment(t)
 
-	var classID sql.NullInt32
-	classID.Scan(class.ID)
-
-	var departmentID sql.NullInt32
-	departmentID.Scan(department.ID)
-
 	arg := CreateStudentParams{
 		FirstName:    utils.RandomString(7),
 		LastName:     utils.RandomString(7),
-		ClassID:      classID,
-		DepartmentID: departmentID,
+		ClassID:      class.ID,
+		DepartmentID: department.ID,
 	}
 
 	student, err := testQueries.CreateStudent(context.Background(), arg)

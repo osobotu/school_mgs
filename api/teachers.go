@@ -3,7 +3,6 @@ package api
 import (
 	"database/sql"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/osobotu/school_mgs/db/sqlc"
@@ -13,8 +12,8 @@ type createTeacherRequest struct {
 	FirstName    string  `json:"first_name" binding:"required"`
 	LastName     string  `json:"last_name" binding:"required"`
 	MiddleName   *string `json:"middle_name"`
-	SubjectID    *int32  `json:"subject_id"`
-	DepartmentID *int32  `json:"department_id"`
+	SubjectID    int32   `json:"subject_id" binding:"required"`
+	DepartmentID int32   `json:"department_id" binding:"required"`
 }
 
 func (server *Server) createTeacher(ctx *gin.Context) {
@@ -28,21 +27,13 @@ func (server *Server) createTeacher(ctx *gin.Context) {
 	if req.MiddleName != nil {
 		middleName.Scan(*req.MiddleName)
 	}
-	var subjectID sql.NullInt32
-	if req.SubjectID != nil {
-		subjectID.Scan(*req.SubjectID)
-	}
-	var departmentID sql.NullInt32
-	if req.DepartmentID != nil {
-		departmentID.Scan(*req.DepartmentID)
-	}
 
 	arg := db.CreateTeacherParams{
 		FirstName:    req.FirstName,
 		LastName:     req.LastName,
-		MiddleName:   middleName,
-		SubjectID:    subjectID,
-		DepartmentID: departmentID,
+		MiddleName:   *req.MiddleName,
+		SubjectID:    req.SubjectID,
+		DepartmentID: req.DepartmentID,
 	}
 
 	teacher, err := server.store.CreateTeacher(ctx, arg)
@@ -57,17 +48,6 @@ func (server *Server) createTeacher(ctx *gin.Context) {
 
 type getTeacherByIDRequest struct {
 	ID int32 `uri:"id" binding:"required,min=1"`
-}
-
-type TeacherX struct {
-	ID           int32     `json:"id"`
-	FirstName    string    `json:"first_name"`
-	LastName     string    `json:"last_name"`
-	MiddleName   *string   `json:"middle_name"`
-	SubjectID    *int32    `json:"subject_id"`
-	DepartmentID *int32    `json:"department_id"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 func (server *Server) getTeacherByID(ctx *gin.Context) {
@@ -87,25 +67,7 @@ func (server *Server) getTeacherByID(ctx *gin.Context) {
 		return
 	}
 
-	teacherX := TeacherX{
-		ID:        teacher.ID,
-		FirstName: teacher.FirstName,
-		LastName:  teacher.LastName,
-		CreatedAt: teacher.CreatedAt,
-		UpdatedAt: teacher.UpdatedAt,
-	}
-
-	if teacher.MiddleName.Valid {
-		teacherX.MiddleName = &teacher.MiddleName.String
-	}
-	if teacher.SubjectID.Valid {
-		teacherX.SubjectID = &teacher.SubjectID.Int32
-	}
-	if teacher.DepartmentID.Valid {
-		teacherX.DepartmentID = &teacher.DepartmentID.Int32
-	}
-
-	ctx.JSON(http.StatusOK, teacherX)
+	ctx.JSON(http.StatusOK, teacher)
 }
 
 type deleteTeacherByIDRequest struct {
@@ -209,19 +171,13 @@ func (server *Server) updateTeacherByID(ctx *gin.Context) {
 		arg.LastName = *req.LastName
 	}
 	if req.MiddleName != nil {
-		var mdn sql.NullString
-		mdn.Scan(*req.MiddleName)
-		arg.MiddleName = mdn
+		arg.MiddleName = *req.MiddleName
 	}
 	if req.SubjectID != nil {
-		var id sql.NullInt32
-		id.Scan(*req.SubjectID)
-		arg.SubjectID = id
+		arg.SubjectID = *req.SubjectID
 	}
 	if req.DepartmentID != nil {
-		var id sql.NullInt32
-		id.Scan(*req.DepartmentID)
-		arg.DepartmentID = id
+		arg.DepartmentID = *req.DepartmentID
 	}
 
 	teacher, err = server.store.UpdateTeacher(ctx, arg)

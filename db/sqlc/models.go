@@ -48,8 +48,8 @@ type DepartmentHasSubject struct {
 type FormMaster struct {
 	ID        int32         `json:"id"`
 	TeacherID sql.NullInt32 `json:"teacher_id"`
-	ClassID   sql.NullInt32 `json:"class_id"`
-	ArmID     sql.NullInt32 `json:"arm_id"`
+	ClassID   int32         `json:"class_id"`
+	ArmID     int32         `json:"arm_id"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt time.Time     `json:"updated_at"`
 }
@@ -62,23 +62,23 @@ type Score struct {
 }
 
 type Session struct {
-	ID        int32        `json:"id"`
-	Session   string       `json:"session"`
-	StartDate sql.NullTime `json:"start_date"`
-	EndDate   sql.NullTime `json:"end_date"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
+	ID        int32     `json:"id"`
+	Session   string    `json:"session"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Student struct {
-	ID           int32          `json:"id"`
-	FirstName    string         `json:"first_name"`
-	LastName     string         `json:"last_name"`
-	MiddleName   sql.NullString `json:"middle_name"`
-	ClassID      sql.NullInt32  `json:"class_id"`
-	DepartmentID sql.NullInt32  `json:"department_id"`
-	CreatedAt    time.Time      `json:"created_at"`
-	UpdatedAt    time.Time      `json:"updated_at"`
+	ID           int32     `json:"id"`
+	FirstName    string    `json:"first_name"`
+	LastName     string    `json:"last_name"`
+	MiddleName   string    `json:"middle_name"`
+	ClassID      int32     `json:"class_id"`
+	DepartmentID int32     `json:"department_id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 type StudentOffersSubject struct {
@@ -96,14 +96,14 @@ type Subject struct {
 }
 
 type Teacher struct {
-	ID           int32          `json:"id"`
-	FirstName    string         `json:"first_name"`
-	LastName     string         `json:"last_name"`
-	MiddleName   sql.NullString `json:"middle_name"`
-	SubjectID    sql.NullInt32  `json:"subject_id"`
-	DepartmentID sql.NullInt32  `json:"department_id"`
-	CreatedAt    time.Time      `json:"created_at"`
-	UpdatedAt    time.Time      `json:"updated_at"`
+	ID           int32     `json:"id"`
+	FirstName    string    `json:"first_name"`
+	LastName     string    `json:"last_name"`
+	MiddleName   string    `json:"middle_name"`
+	SubjectID    int32     `json:"subject_id"`
+	DepartmentID int32     `json:"department_id"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 type TeacherTeachesClass struct {

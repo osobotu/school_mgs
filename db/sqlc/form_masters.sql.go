@@ -22,8 +22,8 @@ INSERT INTO form_masters (
 
 type CreateFormMasterParams struct {
 	TeacherID sql.NullInt32 `json:"teacher_id"`
-	ClassID   sql.NullInt32 `json:"class_id"`
-	ArmID     sql.NullInt32 `json:"arm_id"`
+	ClassID   int32         `json:"class_id"`
+	ArmID     int32         `json:"arm_id"`
 }
 
 func (q *Queries) CreateFormMaster(ctx context.Context, arg CreateFormMasterParams) (FormMaster, error) {
@@ -45,8 +45,8 @@ DELETE FROM form_masters WHERE class_id = $1 AND arm_id = $2
 `
 
 type DeleteFormMasterByClassIDParams struct {
-	ClassID sql.NullInt32 `json:"class_id"`
-	ArmID   sql.NullInt32 `json:"arm_id"`
+	ClassID int32 `json:"class_id"`
+	ArmID   int32 `json:"arm_id"`
 }
 
 func (q *Queries) DeleteFormMasterByClassID(ctx context.Context, arg DeleteFormMasterByClassIDParams) error {
@@ -81,8 +81,8 @@ RETURNING id, teacher_id, class_id, arm_id, created_at, updated_at
 `
 
 type UpdateFormMasterParams struct {
-	ClassID   sql.NullInt32 `json:"class_id"`
-	ArmID     sql.NullInt32 `json:"arm_id"`
+	ClassID   int32         `json:"class_id"`
+	ArmID     int32         `json:"arm_id"`
 	TeacherID sql.NullInt32 `json:"teacher_id"`
 }
 

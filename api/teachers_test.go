@@ -21,6 +21,7 @@ import (
 func TestCreateTeacher(t *testing.T) {
 
 	teacher := randomTeacher()
+	fmt.Print(teacher)
 
 	testCases := []struct {
 		name          string
@@ -33,9 +34,9 @@ func TestCreateTeacher(t *testing.T) {
 			body: gin.H{
 				"first_name":    teacher.FirstName,
 				"last_name":     teacher.LastName,
-				"middle_name":   teacher.MiddleName.String,
-				"subject_id":    teacher.SubjectID.Int32,
-				"department_id": teacher.DepartmentID.Int32,
+				"middle_name":   teacher.MiddleName,
+				"subject_id":    teacher.SubjectID,
+				"department_id": teacher.DepartmentID,
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				params := db.CreateTeacherParams{
@@ -60,9 +61,9 @@ func TestCreateTeacher(t *testing.T) {
 		{
 			name: "Missing required fields",
 			body: gin.H{
-				"middle_name":   teacher.MiddleName.String,
-				"subject_id":    teacher.SubjectID.Int32,
-				"department_id": teacher.DepartmentID.Int32,
+				"middle_name":   teacher.MiddleName,
+				"subject_id":    teacher.SubjectID,
+				"department_id": teacher.DepartmentID,
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -78,9 +79,9 @@ func TestCreateTeacher(t *testing.T) {
 			body: gin.H{
 				"first_name":    teacher.FirstName,
 				"last_name":     teacher.LastName,
-				"middle_name":   teacher.MiddleName.String,
-				"subject_id":    teacher.SubjectID.Int32,
-				"department_id": teacher.DepartmentID.Int32,
+				"middle_name":   teacher.MiddleName,
+				"subject_id":    teacher.SubjectID,
+				"department_id": teacher.DepartmentID,
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				params := db.CreateTeacherParams{
@@ -453,9 +454,9 @@ func TestUpdateTeacherByID(t *testing.T) {
 					ID:           teacher.ID,
 					FirstName:    "new first name",
 					LastName:     "new last name",
-					MiddleName:   sql.NullString{String: "new middle name", Valid: true},
-					SubjectID:    sql.NullInt32{Int32: 1, Valid: true},
-					DepartmentID: sql.NullInt32{Int32: 13, Valid: true},
+					MiddleName:   "new middle name",
+					SubjectID:    1,
+					DepartmentID: 13,
 				}
 				store.EXPECT().
 					GetTeacherByID(gomock.Any(), gomock.Eq(teacher.ID)).
@@ -499,9 +500,9 @@ func TestUpdateTeacherByID(t *testing.T) {
 					ID:           teacher.ID,
 					FirstName:    "new first name",
 					LastName:     "new last name",
-					MiddleName:   sql.NullString{String: "new middle name", Valid: true},
-					SubjectID:    sql.NullInt32{Int32: 1, Valid: true},
-					DepartmentID: sql.NullInt32{Int32: 13, Valid: true},
+					MiddleName:   "new middle name",
+					SubjectID:    1,
+					DepartmentID: 13,
 				}
 
 				store.EXPECT().
@@ -531,9 +532,9 @@ func TestUpdateTeacherByID(t *testing.T) {
 					ID:           teacher.ID,
 					FirstName:    "new first name",
 					LastName:     "new last name",
-					MiddleName:   sql.NullString{String: "new middle name", Valid: true},
-					SubjectID:    sql.NullInt32{Int32: 1, Valid: true},
-					DepartmentID: sql.NullInt32{Int32: 13, Valid: true},
+					MiddleName:   "new middle name",
+					SubjectID:    1,
+					DepartmentID: 13,
 				}
 				store.EXPECT().
 					GetTeacherByID(gomock.Any(), gomock.Any()).
@@ -596,9 +597,9 @@ func TestUpdateTeacherByID(t *testing.T) {
 					ID:           teacher.ID,
 					FirstName:    "new first name",
 					LastName:     "new last name",
-					MiddleName:   sql.NullString{String: "new middle name", Valid: true},
-					SubjectID:    sql.NullInt32{Int32: 1, Valid: true},
-					DepartmentID: sql.NullInt32{Int32: 13, Valid: true},
+					MiddleName:   "new middle name",
+					SubjectID:    1,
+					DepartmentID: 13,
 				}
 
 				store.EXPECT().
@@ -631,9 +632,9 @@ func TestUpdateTeacherByID(t *testing.T) {
 					ID:           teacher.ID,
 					FirstName:    "new first name",
 					LastName:     "new last name",
-					MiddleName:   sql.NullString{String: "new middle name", Valid: true},
-					SubjectID:    sql.NullInt32{Int32: 1, Valid: true},
-					DepartmentID: sql.NullInt32{Int32: 13, Valid: true},
+					MiddleName:   "new middle name",
+					SubjectID:    1,
+					DepartmentID: 13,
 				}
 
 				store.EXPECT().
@@ -693,9 +694,9 @@ func randomTeacher() db.Teacher {
 		ID:           utils.RandomInt(1, 1000),
 		FirstName:    utils.RandomString(5),
 		LastName:     utils.RandomString(7),
-		MiddleName:   sql.NullString{String: utils.RandomString(5), Valid: true},
-		SubjectID:    sql.NullInt32{Int32: utils.RandomInt(1, 23), Valid: true},
-		DepartmentID: sql.NullInt32{Int32: utils.RandomInt(1, 23), Valid: true},
+		MiddleName:   utils.RandomString(5),
+		SubjectID:    utils.RandomInt(1, 23),
+		DepartmentID: utils.RandomInt(1, 23),
 		CreatedAt:    utils.RandomTime(),
 		UpdatedAt:    utils.RandomTime(),
 	}

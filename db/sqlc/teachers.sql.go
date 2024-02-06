@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"time"
 )
 
@@ -24,11 +23,11 @@ INSERT INTO teachers (
 `
 
 type CreateTeacherParams struct {
-	FirstName    string         `json:"first_name"`
-	LastName     string         `json:"last_name"`
-	MiddleName   sql.NullString `json:"middle_name"`
-	SubjectID    sql.NullInt32  `json:"subject_id"`
-	DepartmentID sql.NullInt32  `json:"department_id"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+	MiddleName   string `json:"middle_name"`
+	SubjectID    int32  `json:"subject_id"`
+	DepartmentID int32  `json:"department_id"`
 }
 
 func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (Teacher, error) {
@@ -135,13 +134,13 @@ RETURNING id, first_name, last_name, middle_name, subject_id, department_id, cre
 `
 
 type UpdateTeacherParams struct {
-	ID           int32          `json:"id"`
-	FirstName    string         `json:"first_name"`
-	LastName     string         `json:"last_name"`
-	MiddleName   sql.NullString `json:"middle_name"`
-	SubjectID    sql.NullInt32  `json:"subject_id"`
-	DepartmentID sql.NullInt32  `json:"department_id"`
-	UpdatedAt    time.Time      `json:"updated_at"`
+	ID           int32     `json:"id"`
+	FirstName    string    `json:"first_name"`
+	LastName     string    `json:"last_name"`
+	MiddleName   string    `json:"middle_name"`
+	SubjectID    int32     `json:"subject_id"`
+	DepartmentID int32     `json:"department_id"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 func (q *Queries) UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (Teacher, error) {

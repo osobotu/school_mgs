@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createStudent = `-- name: CreateStudent :one
@@ -23,11 +22,11 @@ INSERT INTO students (
 `
 
 type CreateStudentParams struct {
-	FirstName    string         `json:"first_name"`
-	LastName     string         `json:"last_name"`
-	MiddleName   sql.NullString `json:"middle_name"`
-	ClassID      sql.NullInt32  `json:"class_id"`
-	DepartmentID sql.NullInt32  `json:"department_id"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+	MiddleName   string `json:"middle_name"`
+	ClassID      int32  `json:"class_id"`
+	DepartmentID int32  `json:"department_id"`
 }
 
 func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error) {
@@ -134,12 +133,12 @@ RETURNING id, first_name, last_name, middle_name, class_id, department_id, creat
 `
 
 type UpdateStudentParams struct {
-	ID           int32          `json:"id"`
-	FirstName    string         `json:"first_name"`
-	LastName     string         `json:"last_name"`
-	MiddleName   sql.NullString `json:"middle_name"`
-	ClassID      sql.NullInt32  `json:"class_id"`
-	DepartmentID sql.NullInt32  `json:"department_id"`
+	ID           int32  `json:"id"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+	MiddleName   string `json:"middle_name"`
+	ClassID      int32  `json:"class_id"`
+	DepartmentID int32  `json:"department_id"`
 }
 
 func (q *Queries) UpdateStudent(ctx context.Context, arg UpdateStudentParams) (Student, error) {

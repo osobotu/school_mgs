@@ -7,7 +7,7 @@ package db
 
 import (
 	"context"
-	"database/sql"
+	"time"
 )
 
 const createSession = `-- name: CreateSession :one
@@ -21,9 +21,9 @@ INSERT INTO sessions (
 `
 
 type CreateSessionParams struct {
-	Session   string       `json:"session"`
-	StartDate sql.NullTime `json:"start_date"`
-	EndDate   sql.NullTime `json:"end_date"`
+	Session   string    `json:"session"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {

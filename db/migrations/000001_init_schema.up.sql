@@ -2,9 +2,9 @@ CREATE TABLE "teachers" (
   "id" serial PRIMARY KEY,
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
-  "middle_name" varchar,
-  "subject_id" integer,
-  "department_id" integer,
+  "middle_name" varchar NOT NULL,
+  "subject_id" integer NOT NULL,
+  "department_id" integer NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -34,8 +34,8 @@ CREATE TABLE "classes" (
 CREATE TABLE "form_masters" (
   "id" serial PRIMARY KEY,
   "teacher_id" integer UNIQUE,
-  "class_id" integer,
-  "arm_id" integer,
+  "class_id" integer NOT NULL,
+  "arm_id" integer NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now()),
   UNIQUE (class_id, arm_id)
@@ -76,9 +76,9 @@ CREATE TABLE "students" (
   "id" serial PRIMARY KEY,
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
-  "middle_name" varchar,
-  "class_id" integer,
-  "department_id" integer,
+  "middle_name" varchar NOT NULL,
+  "class_id" integer NOT NULL,
+  "department_id" integer NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -115,8 +115,8 @@ CREATE TABLE "term_scores" (
 CREATE TABLE "sessions" (
   "id" serial PRIMARY KEY,
   "session" varchar NOT NULL,
-  "start_date" timestamptz,
-  "end_date" timestamptz,
+  "start_date" timestamptz NOT NULL,
+  "end_date" timestamptz NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
