@@ -78,8 +78,10 @@ func TestUpdateStudent(t *testing.T) {
 func createTestStudent(t *testing.T) Student {
 	class := createTestClass(t)
 	department := createTestDepartment(t)
+	user := createTestUser(t)
 
 	arg := CreateStudentParams{
+		UserID:       user.ID,
 		FirstName:    utils.RandomString(7),
 		LastName:     utils.RandomString(7),
 		ClassID:      class.ID,

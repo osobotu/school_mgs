@@ -1,12 +1,13 @@
 -- name: CreateTeacher :one
 INSERT INTO teachers (
+    user_id,
     first_name,
     last_name,
     middle_name,
     subject_id,
     department_id
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4, $5, $6
 ) RETURNING *;
 
 -- name: GetTeacherByID :one

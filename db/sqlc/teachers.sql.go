@@ -12,17 +12,19 @@ import (
 
 const createTeacher = `-- name: CreateTeacher :one
 INSERT INTO teachers (
+    user_id,
     first_name,
     last_name,
     middle_name,
     subject_id,
     department_id
 ) VALUES (
-    $1, $2, $3, $4, $5
-) RETURNING id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at
+    $1, $2, $3, $4, $5, $6
+) RETURNING id, user_id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at
 `
 
 type CreateTeacherParams struct {
+	UserID       int32  `json:"user_id"`
 	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name"`
 	MiddleName   string `json:"middle_name"`
@@ -32,6 +34,7 @@ type CreateTeacherParams struct {
 
 func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (Teacher, error) {
 	row := q.db.QueryRowContext(ctx, createTeacher,
+		arg.UserID,
 		arg.FirstName,
 		arg.LastName,
 		arg.MiddleName,
@@ -41,6 +44,7 @@ func (q *Queries) CreateTeacher(ctx context.Context, arg CreateTeacherParams) (T
 	var i Teacher
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.FirstName,
 		&i.LastName,
 		&i.MiddleName,
@@ -62,7 +66,7 @@ func (q *Queries) DeleteTeacher(ctx context.Context, id int32) error {
 }
 
 const getTeacherByID = `-- name: GetTeacherByID :one
-SELECT id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at FROM teachers
+SELECT id, user_id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at FROM teachers
 WHERE id = $1 LIMIT 1
 `
 
@@ -71,6 +75,7 @@ func (q *Queries) GetTeacherByID(ctx context.Context, id int32) (Teacher, error)
 	var i Teacher
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.FirstName,
 		&i.LastName,
 		&i.MiddleName,
@@ -83,7 +88,7 @@ func (q *Queries) GetTeacherByID(ctx context.Context, id int32) (Teacher, error)
 }
 
 const listTeachers = `-- name: ListTeachers :many
-SELECT id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at FROM teachers
+SELECT id, user_id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at FROM teachers
 ORDER BY id
 LIMIT $1
 OFFSET $2
@@ -105,6 +110,7 @@ func (q *Queries) ListTeachers(ctx context.Context, arg ListTeachersParams) ([]T
 		var i Teacher
 		if err := rows.Scan(
 			&i.ID,
+			&i.UserID,
 			&i.FirstName,
 			&i.LastName,
 			&i.MiddleName,
@@ -130,7 +136,7 @@ const updateTeacher = `-- name: UpdateTeacher :one
 UPDATE teachers
 SET first_name = $2, last_name = $3, middle_name = $4, subject_id = $5, department_id = $6, updated_at = $7
 WHERE id = $1
-RETURNING id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at
+RETURNING id, user_id, first_name, last_name, middle_name, subject_id, department_id, created_at, updated_at
 `
 
 type UpdateTeacherParams struct {
@@ -156,6 +162,7 @@ func (q *Queries) UpdateTeacher(ctx context.Context, arg UpdateTeacherParams) (T
 	var i Teacher
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.FirstName,
 		&i.LastName,
 		&i.MiddleName,

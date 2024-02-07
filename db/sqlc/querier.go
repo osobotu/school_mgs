@@ -15,6 +15,7 @@ type Querier interface {
 	CreateDepartment(ctx context.Context, arg CreateDepartmentParams) (Department, error)
 	CreateDepartmentHasSubject(ctx context.Context, arg CreateDepartmentHasSubjectParams) (DepartmentHasSubject, error)
 	CreateFormMaster(ctx context.Context, arg CreateFormMasterParams) (FormMaster, error)
+	CreateRole(ctx context.Context, role string) (Role, error)
 	CreateScore(ctx context.Context, arg CreateScoreParams) (Score, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error)
@@ -24,6 +25,7 @@ type Querier interface {
 	CreateTeacherTeachesClass(ctx context.Context, arg CreateTeacherTeachesClassParams) (TeacherTeachesClass, error)
 	CreateTerm(ctx context.Context, arg CreateTermParams) (Term, error)
 	CreateTermScore(ctx context.Context, arg CreateTermScoreParams) (TermScore, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteArm(ctx context.Context, id int32) error
 	DeleteClass(ctx context.Context, id int32) error
 	DeleteClassHasArms(ctx context.Context, arg DeleteClassHasArmsParams) error
@@ -44,6 +46,7 @@ type Querier interface {
 	GetClassByName(ctx context.Context, name string) (Class, error)
 	GetDepartmentByID(ctx context.Context, id int32) (Department, error)
 	GetFormMasterByID(ctx context.Context, id int32) (FormMaster, error)
+	GetRoleByID(ctx context.Context, id int32) (Role, error)
 	GetScoreByStudentID(ctx context.Context, studentID int32) (Score, error)
 	GetSessionByID(ctx context.Context, id int32) (Session, error)
 	GetStudentByID(ctx context.Context, id int32) (Student, error)
@@ -52,6 +55,7 @@ type Querier interface {
 	GetTeacherByID(ctx context.Context, id int32) (Teacher, error)
 	GetTermByID(ctx context.Context, id int32) (Term, error)
 	GetTermScoreByID(ctx context.Context, id int32) (TermScore, error)
+	GetUserByID(ctx context.Context, id int32) (User, error)
 	ListAllDepartments(ctx context.Context) ([]Department, error)
 	ListArmsInClass(ctx context.Context, classID int32) ([]ClassHasArm, error)
 	ListClasses(ctx context.Context, arg ListClassesParams) ([]Class, error)

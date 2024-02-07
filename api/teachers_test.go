@@ -40,6 +40,7 @@ func TestCreateTeacher(t *testing.T) {
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				params := db.CreateTeacherParams{
+
 					FirstName:    teacher.FirstName,
 					LastName:     teacher.LastName,
 					MiddleName:   teacher.MiddleName,
@@ -85,6 +86,7 @@ func TestCreateTeacher(t *testing.T) {
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				params := db.CreateTeacherParams{
+
 					FirstName:    teacher.FirstName,
 					LastName:     teacher.LastName,
 					MiddleName:   teacher.MiddleName,

@@ -86,8 +86,10 @@ func createTestTeacher(t *testing.T) Teacher {
 
 	subject := createTestSubject(t)
 	department := createTestDepartment(t)
+	user := createTestUser(t)
 
 	arg := CreateTeacherParams{
+		UserID:       user.ID,
 		FirstName:    utils.RandomString(5),
 		LastName:     utils.RandomString(5),
 		MiddleName:   utils.RandomString(5),

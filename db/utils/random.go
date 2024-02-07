@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"math/rand"
 	"strings"
 	"time"
@@ -41,4 +42,8 @@ func RandomList(n int) []int32 {
 func RandomTime() time.Time {
 	t := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
 	return t
+}
+
+func RandomEmail() string {
+	return fmt.Sprintf("%s@email.com", RandomString(5))
 }

@@ -31,6 +31,15 @@ func NewServer(store db.Store) *Server {
 
 	v1 := router.Group("/v1")
 	{
+
+		// ! users
+		v1.POST("/users", server.createUser)
+		v1.GET("/users/:id", server.getUserByID)
+
+		// ! roles
+		v1.POST("/roles", server.createRole)
+		v1.GET("/roles/:id", server.getRoleByID)
+
 		// ! subjects
 		v1.POST("/subjects", server.createSubject)
 		v1.GET("/subjects/:id", server.getSubjectByID)

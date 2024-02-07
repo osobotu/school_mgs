@@ -54,6 +54,11 @@ type FormMaster struct {
 	UpdatedAt time.Time     `json:"updated_at"`
 }
 
+type Role struct {
+	ID   int32  `json:"id"`
+	Role string `json:"role"`
+}
+
 type Score struct {
 	StudentID   int32     `json:"student_id"`
 	TermScoreID int32     `json:"term_score_id"`
@@ -72,6 +77,7 @@ type Session struct {
 
 type Student struct {
 	ID           int32     `json:"id"`
+	UserID       int32     `json:"user_id"`
 	FirstName    string    `json:"first_name"`
 	LastName     string    `json:"last_name"`
 	MiddleName   string    `json:"middle_name"`
@@ -97,6 +103,7 @@ type Subject struct {
 
 type Teacher struct {
 	ID           int32     `json:"id"`
+	UserID       int32     `json:"user_id"`
 	FirstName    string    `json:"first_name"`
 	LastName     string    `json:"last_name"`
 	MiddleName   string    `json:"middle_name"`
@@ -132,4 +139,14 @@ type TermScore struct {
 	ArmID      int32     `json:"arm_id"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+type User struct {
+	ID                int32     `json:"id"`
+	Email             string    `json:"email"`
+	PasswordHash      string    `json:"password_hash"`
+	RoleID            int32     `json:"role_id"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at"`
 }

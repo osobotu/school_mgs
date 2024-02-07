@@ -130,6 +130,21 @@ func (mr *MockStoreMockRecorder) CreateFormMaster(arg0, arg1 any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFormMaster", reflect.TypeOf((*MockStore)(nil).CreateFormMaster), arg0, arg1)
 }
 
+// CreateRole mocks base method.
+func (m *MockStore) CreateRole(arg0 context.Context, arg1 string) (db.Role, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRole", arg0, arg1)
+	ret0, _ := ret[0].(db.Role)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateRole indicates an expected call of CreateRole.
+func (mr *MockStoreMockRecorder) CreateRole(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRole", reflect.TypeOf((*MockStore)(nil).CreateRole), arg0, arg1)
+}
+
 // CreateScore mocks base method.
 func (m *MockStore) CreateScore(arg0 context.Context, arg1 db.CreateScoreParams) (db.Score, error) {
 	m.ctrl.T.Helper()
@@ -263,6 +278,21 @@ func (m *MockStore) CreateTermScore(arg0 context.Context, arg1 db.CreateTermScor
 func (mr *MockStoreMockRecorder) CreateTermScore(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTermScore", reflect.TypeOf((*MockStore)(nil).CreateTermScore), arg0, arg1)
+}
+
+// CreateUser mocks base method.
+func (m *MockStore) CreateUser(arg0 context.Context, arg1 db.CreateUserParams) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUser", arg0, arg1)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockStoreMockRecorder) CreateUser(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockStore)(nil).CreateUser), arg0, arg1)
 }
 
 // DeleteArm mocks base method.
@@ -550,6 +580,21 @@ func (mr *MockStoreMockRecorder) GetFormMasterByID(arg0, arg1 any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFormMasterByID", reflect.TypeOf((*MockStore)(nil).GetFormMasterByID), arg0, arg1)
 }
 
+// GetRoleByID mocks base method.
+func (m *MockStore) GetRoleByID(arg0 context.Context, arg1 int32) (db.Role, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRoleByID", arg0, arg1)
+	ret0, _ := ret[0].(db.Role)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRoleByID indicates an expected call of GetRoleByID.
+func (mr *MockStoreMockRecorder) GetRoleByID(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoleByID", reflect.TypeOf((*MockStore)(nil).GetRoleByID), arg0, arg1)
+}
+
 // GetScoreByStudentID mocks base method.
 func (m *MockStore) GetScoreByStudentID(arg0 context.Context, arg1 int32) (db.Score, error) {
 	m.ctrl.T.Helper()
@@ -668,6 +713,21 @@ func (m *MockStore) GetTermScoreByID(arg0 context.Context, arg1 int32) (db.TermS
 func (mr *MockStoreMockRecorder) GetTermScoreByID(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTermScoreByID", reflect.TypeOf((*MockStore)(nil).GetTermScoreByID), arg0, arg1)
+}
+
+// GetUserByID mocks base method.
+func (m *MockStore) GetUserByID(arg0 context.Context, arg1 int32) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByID", arg0, arg1)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByID indicates an expected call of GetUserByID.
+func (mr *MockStoreMockRecorder) GetUserByID(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockStore)(nil).GetUserByID), arg0, arg1)
 }
 
 // ListAllDepartments mocks base method.

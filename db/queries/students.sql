@@ -1,12 +1,13 @@
 -- name: CreateStudent :one
 INSERT INTO students (
+    user_id,
     first_name,
     last_name,
     middle_name,
     class_id,
     department_id
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4, $5, $6
 ) RETURNING *;
 
 -- name: GetStudentByID :one
