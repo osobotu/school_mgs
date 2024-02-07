@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	_ "github.com/lib/pq"
-	"github.com/osobotu/school_mgs/db/utils"
+	"github.com/osobotu/school_mgs/utils"
 )
 
 var testQueries *Queries

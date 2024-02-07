@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/osobotu/school_mgs/db/utils"
+	"github.com/osobotu/school_mgs/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,9 +24,12 @@ func TestGetUserByID(t *testing.T) {
 func createTestUser(t *testing.T) User {
 	role := createTestRole(t)
 
+	hashedPassword, err := utils.HashPassword(utils.RandomString(6))
+	require.NoError(t, err)
+
 	arg := CreateUserParams{
 		Email:        utils.RandomEmail(),
-		PasswordHash: "hash",
+		PasswordHash: hashedPassword,
 		RoleID:       role.ID,
 	}
 	user, err := testQueries.CreateUser(context.Background(), arg)

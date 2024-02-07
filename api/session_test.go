@@ -9,7 +9,7 @@ import (
 
 	mockdb "github.com/osobotu/school_mgs/db/mock"
 	db "github.com/osobotu/school_mgs/db/sqlc"
-	"github.com/osobotu/school_mgs/db/utils"
+	"github.com/osobotu/school_mgs/utils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )

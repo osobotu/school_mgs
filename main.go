@@ -8,7 +8,7 @@ import (
 
 	"github.com/osobotu/school_mgs/api"
 	db "github.com/osobotu/school_mgs/db/sqlc"
-	"github.com/osobotu/school_mgs/db/utils"
+	"github.com/osobotu/school_mgs/utils"
 )
 
 func main() {

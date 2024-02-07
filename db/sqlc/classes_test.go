@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/osobotu/school_mgs/db/utils"
+	"github.com/osobotu/school_mgs/utils"
 	"github.com/stretchr/testify/require"
 )
 

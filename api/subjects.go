@@ -4,9 +4,9 @@ import (
 	"database/sql"
 
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 	db "github.com/osobotu/school_mgs/db/sqlc"
 )
 
@@ -23,9 +23,12 @@ func (server *Server) createSubject(ctx *gin.Context) {
 
 	subject, err := server.store.CreateSubject(ctx, req.Name)
 	if err != nil {
-		if strings.Contains(err.Error(), "duplicate key") {
-			ctx.JSON(http.StatusBadRequest, "Subject already exists")
-			return
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "unique_violation":
+				ctx.JSON(http.StatusForbidden, errorResponse(err))
+				return
+			}
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
