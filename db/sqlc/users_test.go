@@ -37,6 +37,14 @@ func createTestUser(t *testing.T) User {
 	require.NotEmpty(t, user)
 	return user
 }
+func TestGetUserByEmail(t *testing.T) {
+	user1 := createTestUser(t)
+	user2, err := testQueries.GetUserByEmail(context.Background(), user1.Email)
+	require.NoError(t, err)
+	require.NotEmpty(t, user2)
+	compareUsers(t, user1, user2)
+
+}
 
 func compareUsers(t *testing.T, user1, user2 User) {
 	require.Equal(t, user1.ID, user2.ID)

@@ -100,7 +100,7 @@ func TestCreateScore(t *testing.T) {
 			tc.buildStub(store, params)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			// marshal request to json
@@ -231,7 +231,7 @@ func TestGetScoreByStudentID(t *testing.T) {
 			tc.buildStub(store)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			url := fmt.Sprintf("/v1/scores/%d", tc.studentID)
@@ -326,7 +326,7 @@ func TestDeleteScoreByID(t *testing.T) {
 			tc.buildStub(store)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			url := fmt.Sprintf("/v1/scores/%d", tc.scoreID)

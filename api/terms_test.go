@@ -105,7 +105,7 @@ func TestCreateTerm(t *testing.T) {
 			tc.buildStub(store, params)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			// marshal request to json
@@ -197,7 +197,7 @@ func TestGetTermByID(t *testing.T) {
 		tc.buildStub(store)
 
 		// start test server and send request
-		server := NewServer(store)
+		server := newTestServer(t, store)
 		recorder := httptest.NewRecorder()
 
 		url := fmt.Sprintf("/v1/terms/%d", tc.termID)
@@ -282,7 +282,7 @@ func TestDeleteTerm(t *testing.T) {
 		tc.buildStub(store)
 
 		// start test server and send request
-		server := NewServer(store)
+		server := newTestServer(t, store)
 		recorder := httptest.NewRecorder()
 
 		url := fmt.Sprintf("/v1/terms/%d", tc.termID)

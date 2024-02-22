@@ -94,7 +94,7 @@ func TestCreateClass(t *testing.T) {
 			tc.buildStub(store)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			// marshal request to json
@@ -182,7 +182,7 @@ func TestGetClassByID(t *testing.T) {
 			tc.buildStub(store)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			url := fmt.Sprintf("/v1/classes/%d", tc.classID)
@@ -267,7 +267,7 @@ func TestGetClassByName(t *testing.T) {
 			tc.buildStub(store)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			url := fmt.Sprintf("/v1/classes?name=%s", tc.className)
@@ -361,7 +361,7 @@ func TestDeleteClassByID(t *testing.T) {
 			tc.buildStub(store)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			url := fmt.Sprintf("/v1/classes/%d", tc.classID)
@@ -476,7 +476,7 @@ func TestListClasses(t *testing.T) {
 			tc.buildStub(store, params)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			url := fmt.Sprintf("/v1/all-classes?page_id=%d&page_size=%d", tc.pageID, tc.pageSize)
 			request, err := http.NewRequest(http.MethodGet, url, nil)

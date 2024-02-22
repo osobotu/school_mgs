@@ -102,7 +102,7 @@ func TestCreateRole(t *testing.T) {
 			tc.buildStub(store)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			// marshal request to json
@@ -194,7 +194,7 @@ func TestGetRoleByID(t *testing.T) {
 		tc.buildStub(store)
 
 		// start test server and send request
-		server := NewServer(store)
+		server := newTestServer(t, store)
 		recorder := httptest.NewRecorder()
 
 		url := fmt.Sprintf("/v1/roles/%d", tc.RoleID)

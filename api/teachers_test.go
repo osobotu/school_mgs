@@ -118,7 +118,7 @@ func TestCreateTeacher(t *testing.T) {
 
 				tc.buildStub(store)
 
-				server := NewServer(store)
+				server := newTestServer(t, store)
 				recorder := httptest.NewRecorder()
 
 				data, err := json.Marshal(tc.body)
@@ -212,7 +212,7 @@ func TestGetTeacherByID(t *testing.T) {
 				store := mockdb.NewMockStore(ctrl)
 				tc.buildStub(store)
 
-				server := NewServer(store)
+				server := newTestServer(t, store)
 				recorder := httptest.NewRecorder()
 
 				url := fmt.Sprintf("/v1/teachers/%d", tc.teacherID)
@@ -301,7 +301,7 @@ func TestDeleteTeacher(t *testing.T) {
 				store := mockdb.NewMockStore(ctrl)
 				tc.buildStub(store)
 
-				server := NewServer(store)
+				server := newTestServer(t, store)
 				recorder := httptest.NewRecorder()
 
 				url := fmt.Sprintf("/v1/teachers/%d", tc.teacherID)
@@ -418,7 +418,7 @@ func TestListTeachers(t *testing.T) {
 			tc.buildStub(store, params)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			url := fmt.Sprintf("/v1/teachers?page_id=%d&page_size=%d", tc.pageID, tc.pageSize)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
@@ -670,7 +670,7 @@ func TestUpdateTeacherByID(t *testing.T) {
 			require.NoError(t, err)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			url := fmt.Sprintf("/v1/teachers/%d", tc.teacherID)
 			request, err := http.NewRequest(http.MethodPatch, url, bytes.NewReader(data))

@@ -144,7 +144,7 @@ func TestCreateUser(t *testing.T) {
 			tc.buildStub(store)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			// marshal request to json
@@ -236,7 +236,7 @@ func TestGetUserByID(t *testing.T) {
 		tc.buildStub(store)
 
 		// start test server and send request
-		server := NewServer(store)
+		server := newTestServer(t, store)
 		recorder := httptest.NewRecorder()
 
 		url := fmt.Sprintf("/v1/users/%d", tc.userID)
@@ -247,6 +247,32 @@ func TestGetUserByID(t *testing.T) {
 		tc.checkResponse(t, recorder)
 	}
 }
+
+// func TestLoginUser(t *testing.T) {
+// 	user, password := randomUser()
+
+// 	testCases := []struct {
+// 		name string
+// 		email string
+// 		password string
+// 			buildStub     func(store *mockdb.MockStore)
+// 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
+// 	}{
+// 		{
+// 			name: "OK",
+// 			email: user.Email,
+// 			password: password,
+// 			buildStub: func(store *mockdb.MockStore) {
+// 				store.EXPECT().GetUserByEmail(gomock.Any(), gomock.Eq(user.Email)).
+// 				Times(1).
+// 				Return(user, nil)
+// 			},
+// 			checkResponse: func(T *testing.T, recorder *httptest.ResponseRecorder) {
+
+// 			},
+// 		},
+// 	}
+// }
 
 func randomUser() (db.User, string) {
 	password := "password"

@@ -55,6 +55,7 @@ type Querier interface {
 	GetTeacherByID(ctx context.Context, id int32) (Teacher, error)
 	GetTermByID(ctx context.Context, id int32) (Term, error)
 	GetTermScoreByID(ctx context.Context, id int32) (TermScore, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
 	ListAllDepartments(ctx context.Context) ([]Department, error)
 	ListArmsInClass(ctx context.Context, classID int32) ([]ClassHasArm, error)

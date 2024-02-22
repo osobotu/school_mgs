@@ -58,7 +58,7 @@ import (
 // 		tc.buildStub(store, params)
 
 // 		// start test server and send request
-// 		server := NewServer(store)
+// 		server := newTestServer(t, store)
 // 		recorder := httptest.NewRecorder()
 
 // 		// marshal request to json
@@ -149,7 +149,7 @@ func TestGetSessionByID(t *testing.T) {
 		tc.buildStub(store)
 
 		// start test server and send request
-		server := NewServer(store)
+		server := newTestServer(t, store)
 		recorder := httptest.NewRecorder()
 
 		url := fmt.Sprintf("/v1/sessions/%d", tc.sessionID)
@@ -234,7 +234,7 @@ func TestDeleteSession(t *testing.T) {
 		tc.buildStub(store)
 
 		// start test server and send request
-		server := NewServer(store)
+		server := newTestServer(t, store)
 		recorder := httptest.NewRecorder()
 
 		url := fmt.Sprintf("/v1/sessions/%d", tc.sessionID)
