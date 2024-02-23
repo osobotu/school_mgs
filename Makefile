@@ -1,5 +1,5 @@
 postgres:
-	docker run --name postgres-school-mgs -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -d postgres:16-alpine
+	docker run --name postgres-school-mgs --network school_mgs_network -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -d postgres:16-alpine
 
 start_container:
 	docker start postgres-school-mgs
