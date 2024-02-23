@@ -8,21 +8,25 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	mockdb "github.com/osobotu/school_mgs/db/mock"
 	db "github.com/osobotu/school_mgs/db/sqlc"
+	"github.com/osobotu/school_mgs/token"
 	"github.com/osobotu/school_mgs/utils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
 
 func TestCreateScore(t *testing.T) {
+	user, _ := randomUser()
 	score := randomScore()
 
 	testCases := []struct {
 		name          string
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore, params db.CreateScoreParams)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder, params db.CreateScoreParams)
 	}{
@@ -31,6 +35,9 @@ func TestCreateScore(t *testing.T) {
 			body: gin.H{
 				"student_id":    score.StudentID,
 				"term_score_id": score.TermScoreID,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore, params db.CreateScoreParams) {
 				store.EXPECT().
@@ -45,6 +52,9 @@ func TestCreateScore(t *testing.T) {
 		{
 			name: "Empty body",
 			body: gin.H{},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.CreateScoreParams) {
 				store.EXPECT().
 					CreateScore(gomock.Any(), gomock.Eq(params)).
@@ -58,6 +68,9 @@ func TestCreateScore(t *testing.T) {
 			name: "Invalid body",
 			body: gin.H{
 				"student_id_id": "",
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore, params db.CreateScoreParams) {
 				store.EXPECT().
@@ -73,6 +86,9 @@ func TestCreateScore(t *testing.T) {
 			body: gin.H{
 				"student_id":    score.StudentID,
 				"term_score_id": score.TermScoreID,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore, params db.CreateScoreParams) {
 				store.EXPECT().
@@ -111,6 +127,8 @@ func TestCreateScore(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder, params)
 		})
@@ -118,17 +136,22 @@ func TestCreateScore(t *testing.T) {
 
 }
 func TestGetScoreByStudentID(t *testing.T) {
+	user, _ := randomUser()
 	score := randomScore()
 	termScore := randomTermScore()
 	testCases := []struct {
 		name          string
 		studentID     int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			studentID: score.StudentID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetScoreByStudentID(gomock.Any(), gomock.Eq(score.StudentID)).
@@ -147,6 +170,9 @@ func TestGetScoreByStudentID(t *testing.T) {
 		{
 			name:      "Not Found: student_id",
 			studentID: score.StudentID + 1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetScoreByStudentID(gomock.Any(), gomock.Eq(score.StudentID+1)).
@@ -160,6 +186,9 @@ func TestGetScoreByStudentID(t *testing.T) {
 		{
 			name:      "Not Found: term_score_id",
 			studentID: score.StudentID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetScoreByStudentID(gomock.Any(), gomock.Eq(score.StudentID)).
@@ -178,6 +207,9 @@ func TestGetScoreByStudentID(t *testing.T) {
 		{
 			name:      "Invalid Student ID",
 			studentID: -1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetScoreByStudentID(gomock.Any(), gomock.Eq(-1)).
@@ -190,6 +222,9 @@ func TestGetScoreByStudentID(t *testing.T) {
 		{
 			name:      "Internal Server Error: student_id",
 			studentID: score.StudentID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetScoreByStudentID(gomock.Any(), gomock.Eq(score.StudentID)).
@@ -203,6 +238,9 @@ func TestGetScoreByStudentID(t *testing.T) {
 		{
 			name:      "Internal Server Error: term_score_id",
 			studentID: score.StudentID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetScoreByStudentID(gomock.Any(), gomock.Eq(score.StudentID)).
@@ -238,6 +276,8 @@ func TestGetScoreByStudentID(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -246,17 +286,22 @@ func TestGetScoreByStudentID(t *testing.T) {
 }
 
 func TestDeleteScoreByID(t *testing.T) {
+	user, _ := randomUser()
 	score := randomScore()
 
 	testCases := []struct {
 		name          string
 		scoreID       int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:    "OK",
 			scoreID: score.StudentID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -271,6 +316,9 @@ func TestDeleteScoreByID(t *testing.T) {
 		{
 			name:    "Not found",
 			scoreID: score.StudentID + 1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -286,6 +334,9 @@ func TestDeleteScoreByID(t *testing.T) {
 		{
 			name:    "Invalid ID",
 			scoreID: -1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -301,6 +352,9 @@ func TestDeleteScoreByID(t *testing.T) {
 		{
 			name:    "Internal Server Error",
 			scoreID: score.StudentID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -332,6 +386,8 @@ func TestDeleteScoreByID(t *testing.T) {
 			url := fmt.Sprintf("/v1/scores/%d", tc.scoreID)
 			request, err := http.NewRequest(http.MethodDelete, url, nil)
 			require.NoError(t, err)
+
+			tc.setupAuth(t, request, server.tokenMaker)
 
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)

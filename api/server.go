@@ -58,58 +58,60 @@ func (server *Server) setupRouter() {
 		v1.POST("/users/login", server.loginUser)
 		v1.GET("/users/:id", server.getUserByID)
 
+		authRoutes := v1.Group("/").Use(authMiddleware(server.tokenMaker))
+
 		// ! roles
-		v1.POST("/roles", server.createRole)
-		v1.GET("/roles/:id", server.getRoleByID)
+		authRoutes.POST("/roles", server.createRole)
+		authRoutes.GET("/roles/:id", server.getRoleByID)
 
 		// ! subjects
-		v1.POST("/subjects", server.createSubject)
-		v1.GET("/subjects/:id", server.getSubjectByID)
-		v1.GET("/subjects", server.listSubjects)
-		v1.DELETE("/subjects/:id", server.deleteSubjectByID)
+		authRoutes.POST("/subjects", server.createSubject)
+		authRoutes.GET("/subjects/:id", server.getSubjectByID)
+		authRoutes.GET("/subjects", server.listSubjects)
+		authRoutes.DELETE("/subjects/:id", server.deleteSubjectByID)
 
 		// ! teachers
-		v1.POST("/teachers", server.createTeacher)
-		v1.GET("/teachers/:id", server.getTeacherByID)
-		v1.GET("/teachers", server.listTeachers)
-		v1.DELETE("/teachers/:id", server.deleteTeacherByID)
-		v1.PATCH("/teachers/:id", server.updateTeacherByID)
+		authRoutes.POST("/teachers", server.createTeacher)
+		authRoutes.GET("/teachers/:id", server.getTeacherByID)
+		authRoutes.GET("/teachers", server.listTeachers)
+		authRoutes.DELETE("/teachers/:id", server.deleteTeacherByID)
+		authRoutes.PATCH("/teachers/:id", server.updateTeacherByID)
 
 		// ! classes
-		v1.POST("/classes", server.createClass)
-		v1.GET("/classes/:id", server.getClassByID)
-		v1.GET("/classes", server.getClassByName)
-		v1.GET("/all-classes", server.listClasses)
-		v1.DELETE("/classes/:id", server.deleteClassByID)
+		authRoutes.POST("/classes", server.createClass)
+		authRoutes.GET("/classes/:id", server.getClassByID)
+		authRoutes.GET("/classes", server.getClassByName)
+		authRoutes.GET("/all-classes", server.listClasses)
+		authRoutes.DELETE("/classes/:id", server.deleteClassByID)
 
 		// ! sessions
-		v1.POST("/sessions", server.createSession)
-		v1.GET("/sessions/:id", server.getSessionByID)
-		v1.DELETE("/sessions/:id", server.deleteSession)
+		authRoutes.POST("/sessions", server.createSession)
+		authRoutes.GET("/sessions/:id", server.getSessionByID)
+		authRoutes.DELETE("/sessions/:id", server.deleteSession)
 
 		// ! terms
-		v1.POST("/terms", server.createTerm)
-		v1.GET("/terms/:id", server.getTermByID)
-		v1.DELETE("/terms/:id", server.deleteTerm)
+		authRoutes.POST("/terms", server.createTerm)
+		authRoutes.GET("/terms/:id", server.getTermByID)
+		authRoutes.DELETE("/terms/:id", server.deleteTerm)
 
 		// ! students
-		v1.POST("/students", server.createStudent)
-		v1.GET("/students/:id", server.getStudentByID)
-		v1.PATCH("/students/:id", server.updateStudent)
-		v1.GET("/students", server.listStudents)
-		v1.DELETE("/students/:id", server.deleteStudent)
+		authRoutes.POST("/students", server.createStudent)
+		authRoutes.GET("/students/:id", server.getStudentByID)
+		authRoutes.PATCH("/students/:id", server.updateStudent)
+		authRoutes.GET("/students", server.listStudents)
+		authRoutes.DELETE("/students/:id", server.deleteStudent)
 
 		// ! scores
-		v1.POST("/scores", server.createScore)
-		v1.GET("/scores/:id", server.getScoreByStudentID)
-		v1.DELETE("/scores/:id", server.deleteScore)
+		authRoutes.POST("/scores", server.createScore)
+		authRoutes.GET("/scores/:id", server.getScoreByStudentID)
+		authRoutes.DELETE("/scores/:id", server.deleteScore)
 
 		// ! term_scores
-		v1.POST("/term_scores", server.createTermScore)
-		v1.GET("/term_scores/:id", server.getTermScoreByID)
-		v1.GET("/term_scores", server.listTermScoresForSubjectAndClass)
-		v1.PATCH("/term_scores/:id", server.updateTermScoreByID)
-		v1.DELETE("/term_scores/:id", server.deleteTermScoreByID)
+		authRoutes.POST("/term_scores", server.createTermScore)
+		authRoutes.GET("/term_scores/:id", server.getTermScoreByID)
+		authRoutes.GET("/term_scores", server.listTermScoresForSubjectAndClass)
+		authRoutes.PATCH("/term_scores/:id", server.updateTermScoreByID)
+		authRoutes.DELETE("/term_scores/:id", server.deleteTermScoreByID)
 
 	}
 

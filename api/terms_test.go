@@ -8,21 +8,25 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	mockdb "github.com/osobotu/school_mgs/db/mock"
 	db "github.com/osobotu/school_mgs/db/sqlc"
+	"github.com/osobotu/school_mgs/token"
 	"github.com/osobotu/school_mgs/utils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
 
 func TestCreateTerm(t *testing.T) {
+	user, _ := randomUser()
 	term := randomTerm()
 
 	testCases := []struct {
 		name          string
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore, params db.CreateTermParams)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder, params db.CreateTermParams)
 	}{
@@ -31,6 +35,9 @@ func TestCreateTerm(t *testing.T) {
 			body: gin.H{
 				"name":   "First",
 				"number": 1,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore, params db.CreateTermParams) {
 				store.EXPECT().
@@ -45,6 +52,9 @@ func TestCreateTerm(t *testing.T) {
 		{
 			name: "Empty body",
 			body: gin.H{},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.CreateTermParams) {
 				store.EXPECT().
 					CreateTerm(gomock.Any(), gomock.Eq(params)).
@@ -61,6 +71,9 @@ func TestCreateTerm(t *testing.T) {
 				"names":   "First",
 				"numbers": "2",
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.CreateTermParams) {
 				store.EXPECT().
 					CreateTerm(gomock.Any(), gomock.Eq(params)).
@@ -76,6 +89,9 @@ func TestCreateTerm(t *testing.T) {
 			body: gin.H{
 				"name":   "First",
 				"number": 1,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore, params db.CreateTermParams) {
 				store.EXPECT().
@@ -116,6 +132,8 @@ func TestCreateTerm(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder, params)
 		})
@@ -124,17 +142,22 @@ func TestCreateTerm(t *testing.T) {
 }
 
 func TestGetTermByID(t *testing.T) {
+	user, _ := randomUser()
 	term := randomTerm()
 
 	testCases := []struct {
 		name          string
 		termID        int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:   "OK",
 			termID: term.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetTermByID(gomock.Any(), gomock.Eq(term.ID)).
@@ -148,6 +171,9 @@ func TestGetTermByID(t *testing.T) {
 		{
 			name:   "Not Found",
 			termID: term.ID + 1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetTermByID(gomock.Any(), gomock.Eq(term.ID+1)).
@@ -161,6 +187,9 @@ func TestGetTermByID(t *testing.T) {
 		{
 			name:   "Invalid ID",
 			termID: -1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetTermByID(gomock.Any(), gomock.Eq(-1)).
@@ -174,6 +203,9 @@ func TestGetTermByID(t *testing.T) {
 		{
 			name:   "Internal server error",
 			termID: term.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetTermByID(gomock.Any(), gomock.Eq(term.ID)).
@@ -204,22 +236,29 @@ func TestGetTermByID(t *testing.T) {
 		request, err := http.NewRequest(http.MethodGet, url, nil)
 		require.NoError(t, err)
 
+		tc.setupAuth(t, request, server.tokenMaker)
+
 		server.router.ServeHTTP(recorder, request)
 		tc.checkResponse(t, recorder)
 	}
 }
 func TestDeleteTerm(t *testing.T) {
+	user, _ := randomUser()
 	term := randomTerm()
 
 	testCases := []struct {
 		name          string
 		termID        int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:   "OK",
 			termID: term.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteTerm(gomock.Any(), gomock.Eq(term.ID)).
@@ -233,6 +272,9 @@ func TestDeleteTerm(t *testing.T) {
 		{
 			name:   "Not Found",
 			termID: term.ID + 1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteTerm(gomock.Any(), gomock.Eq(term.ID+1)).
@@ -246,6 +288,9 @@ func TestDeleteTerm(t *testing.T) {
 		{
 			name:   "Invalid ID",
 			termID: -1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteTerm(gomock.Any(), gomock.Eq(-1)).
@@ -259,6 +304,9 @@ func TestDeleteTerm(t *testing.T) {
 		{
 			name:   "Internal server error",
 			termID: term.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteTerm(gomock.Any(), gomock.Eq(term.ID)).
@@ -288,6 +336,8 @@ func TestDeleteTerm(t *testing.T) {
 		url := fmt.Sprintf("/v1/terms/%d", tc.termID)
 		request, err := http.NewRequest(http.MethodDelete, url, nil)
 		require.NoError(t, err)
+
+		tc.setupAuth(t, request, server.tokenMaker)
 
 		server.router.ServeHTTP(recorder, request)
 		tc.checkResponse(t, recorder)

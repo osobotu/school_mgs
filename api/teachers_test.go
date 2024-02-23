@@ -9,23 +9,26 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	mockdb "github.com/osobotu/school_mgs/db/mock"
 	db "github.com/osobotu/school_mgs/db/sqlc"
+	"github.com/osobotu/school_mgs/token"
 	"github.com/osobotu/school_mgs/utils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
 
 func TestCreateTeacher(t *testing.T) {
-
+	user, _ := randomUser()
 	teacher := randomTeacher()
 	fmt.Print(teacher)
 
 	testCases := []struct {
 		name          string
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
@@ -37,6 +40,9 @@ func TestCreateTeacher(t *testing.T) {
 				"middle_name":   teacher.MiddleName,
 				"subject_id":    teacher.SubjectID,
 				"department_id": teacher.DepartmentID,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				params := db.CreateTeacherParams{
@@ -66,6 +72,9 @@ func TestCreateTeacher(t *testing.T) {
 				"subject_id":    teacher.SubjectID,
 				"department_id": teacher.DepartmentID,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					CreateTeacher(gomock.Any(), gomock.Any()).
@@ -83,6 +92,9 @@ func TestCreateTeacher(t *testing.T) {
 				"middle_name":   teacher.MiddleName,
 				"subject_id":    teacher.SubjectID,
 				"department_id": teacher.DepartmentID,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				params := db.CreateTeacherParams{
@@ -128,6 +140,8 @@ func TestCreateTeacher(t *testing.T) {
 				request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 				require.NoError(t, err)
 
+				tc.setupAuth(t, request, server.tokenMaker)
+
 				server.router.ServeHTTP(recorder, request)
 
 				tc.checkResponse(t, recorder)
@@ -137,17 +151,22 @@ func TestCreateTeacher(t *testing.T) {
 }
 
 func TestGetTeacherByID(t *testing.T) {
+	user, _ := randomUser()
 	teacher := randomTeacher()
 
 	testCases := []struct {
 		name          string
 		teacherID     int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			teacherID: teacher.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetTeacherByID(gomock.Any(), gomock.Eq(teacher.ID)).
@@ -162,6 +181,9 @@ func TestGetTeacherByID(t *testing.T) {
 		{
 			name:      "Not Found",
 			teacherID: 1001,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetTeacherByID(gomock.Any(), gomock.Any()).
@@ -176,6 +198,9 @@ func TestGetTeacherByID(t *testing.T) {
 		{
 			name:      "Invalid ID",
 			teacherID: -1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetTeacherByID(gomock.Any(), gomock.Any()).
@@ -189,6 +214,9 @@ func TestGetTeacherByID(t *testing.T) {
 		{
 			name:      "Internal Server Error",
 			teacherID: teacher.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetTeacherByID(gomock.Any(), gomock.Eq(teacher.ID)).
@@ -219,6 +247,7 @@ func TestGetTeacherByID(t *testing.T) {
 				request, err := http.NewRequest(http.MethodGet, url, nil)
 				require.NoError(t, err)
 
+				tc.setupAuth(t, request, server.tokenMaker)
 				server.router.ServeHTTP(recorder, request)
 
 				tc.checkResponse(t, recorder)
@@ -227,17 +256,22 @@ func TestGetTeacherByID(t *testing.T) {
 	}
 }
 func TestDeleteTeacher(t *testing.T) {
+	user, _ := randomUser()
 	teacher := randomTeacher()
 
 	testCases := []struct {
 		name          string
 		teacherID     int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			teacherID: teacher.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteTeacher(gomock.Any(), gomock.Eq(teacher.ID)).
@@ -251,6 +285,9 @@ func TestDeleteTeacher(t *testing.T) {
 		{
 			name:      "Not Found",
 			teacherID: teacher.ID + 1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteTeacher(gomock.Any(), gomock.Any()).
@@ -265,6 +302,9 @@ func TestDeleteTeacher(t *testing.T) {
 		{
 			name:      "Invalid ID",
 			teacherID: -1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteTeacher(gomock.Any(), gomock.Any()).
@@ -278,6 +318,9 @@ func TestDeleteTeacher(t *testing.T) {
 		{
 			name:      "Internal Server Error",
 			teacherID: teacher.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteTeacher(gomock.Any(), gomock.Eq(teacher.ID)).
@@ -308,6 +351,8 @@ func TestDeleteTeacher(t *testing.T) {
 				request, err := http.NewRequest(http.MethodDelete, url, nil)
 				require.NoError(t, err)
 
+				tc.setupAuth(t, request, server.tokenMaker)
+
 				server.router.ServeHTTP(recorder, request)
 
 				tc.checkResponse(t, recorder)
@@ -317,6 +362,7 @@ func TestDeleteTeacher(t *testing.T) {
 }
 
 func TestListTeachers(t *testing.T) {
+	user, _ := randomUser()
 	teachers := make([]db.Teacher, 0)
 
 	for i := 0; i < 5; i++ {
@@ -327,6 +373,7 @@ func TestListTeachers(t *testing.T) {
 		name          string
 		pageID        int32
 		pageSize      int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore, params db.ListTeachersParams)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListTeachersParams)
 	}{
@@ -334,6 +381,9 @@ func TestListTeachers(t *testing.T) {
 			name:     "OK",
 			pageID:   1,
 			pageSize: 5,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListTeachersParams) {
 
 				store.EXPECT().
@@ -363,6 +413,9 @@ func TestListTeachers(t *testing.T) {
 			name:     "Invalid Page ID",
 			pageID:   -1,
 			pageSize: 5,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListTeachersParams) {
 
 				store.EXPECT().
@@ -377,6 +430,9 @@ func TestListTeachers(t *testing.T) {
 			name:     "Invalid Page Size",
 			pageID:   1,
 			pageSize: 15,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListTeachersParams) {
 
 				store.EXPECT().
@@ -391,6 +447,9 @@ func TestListTeachers(t *testing.T) {
 			name:     "Internal Server Error",
 			pageID:   1,
 			pageSize: 5,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListTeachersParams) {
 
 				store.EXPECT().
@@ -424,6 +483,8 @@ func TestListTeachers(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder, params)
 		})
@@ -432,12 +493,14 @@ func TestListTeachers(t *testing.T) {
 }
 
 func TestUpdateTeacherByID(t *testing.T) {
+	user, _ := randomUser()
 	teacher := randomTeacher()
 
 	testCases := []struct {
 		name          string
 		teacherID     int32
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
@@ -450,6 +513,9 @@ func TestUpdateTeacherByID(t *testing.T) {
 				"middle_name":   "new middle name",
 				"subject_id":    1,
 				"department_id": 13,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				params := db.UpdateTeacherParams{
@@ -497,6 +563,9 @@ func TestUpdateTeacherByID(t *testing.T) {
 				"subject_id":    1,
 				"department_id": 13,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				params := db.UpdateTeacherParams{
 					ID:           teacher.ID,
@@ -528,6 +597,9 @@ func TestUpdateTeacherByID(t *testing.T) {
 				"middle_name":   "new middle name",
 				"subject_id":    1,
 				"department_id": 13,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				params := db.UpdateTeacherParams{
@@ -594,6 +666,9 @@ func TestUpdateTeacherByID(t *testing.T) {
 				"subject_id":    1,
 				"department_id": 13,
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				params := db.UpdateTeacherParams{
 					ID:           teacher.ID,
@@ -628,6 +703,9 @@ func TestUpdateTeacherByID(t *testing.T) {
 				"middle_name":   "new middle name",
 				"subject_id":    1,
 				"department_id": 13,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				params := db.UpdateTeacherParams{
@@ -675,6 +753,8 @@ func TestUpdateTeacherByID(t *testing.T) {
 			url := fmt.Sprintf("/v1/teachers/%d", tc.teacherID)
 			request, err := http.NewRequest(http.MethodPatch, url, bytes.NewReader(data))
 			require.NoError(t, err)
+
+			tc.setupAuth(t, request, server.tokenMaker)
 
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)

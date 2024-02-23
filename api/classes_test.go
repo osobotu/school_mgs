@@ -9,21 +9,25 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	mockdb "github.com/osobotu/school_mgs/db/mock"
 	db "github.com/osobotu/school_mgs/db/sqlc"
+	"github.com/osobotu/school_mgs/token"
 	"github.com/osobotu/school_mgs/utils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
 
 func TestCreateClass(t *testing.T) {
+	user, _ := randomUser()
 	class := randomClass()
 
 	testCases := []struct {
 		name          string
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
@@ -31,6 +35,9 @@ func TestCreateClass(t *testing.T) {
 			name: "OK",
 			body: gin.H{
 				"name": class.Name,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -45,6 +52,9 @@ func TestCreateClass(t *testing.T) {
 		{
 			name: "Empty body",
 			body: gin.H{},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					CreateClass(gomock.Any(), gomock.Any()).
@@ -59,6 +69,9 @@ func TestCreateClass(t *testing.T) {
 			body: gin.H{
 				"class_name": "test_invalid_name",
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					CreateClass(gomock.Any(), gomock.Any()).
@@ -72,6 +85,9 @@ func TestCreateClass(t *testing.T) {
 			name: "Internal Server Error",
 			body: gin.H{
 				"name": class.Name,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -105,6 +121,8 @@ func TestCreateClass(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -112,16 +130,21 @@ func TestCreateClass(t *testing.T) {
 }
 
 func TestGetClassByID(t *testing.T) {
+	user, _ := randomUser()
 	class := randomClass()
 	testCases := []struct {
 		name          string
 		classID       int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:    "OK",
 			classID: class.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetClassByID(gomock.Any(), gomock.Eq(class.ID)).
@@ -136,6 +159,9 @@ func TestGetClassByID(t *testing.T) {
 		{
 			name:    "Invalid ID",
 			classID: -1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetClassByID(gomock.Any(), gomock.Eq(-1)).
@@ -148,6 +174,9 @@ func TestGetClassByID(t *testing.T) {
 		{
 			name:    "Not found",
 			classID: class.ID + 1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetClassByID(gomock.Any(), gomock.Eq(class.ID+1)).
@@ -161,6 +190,9 @@ func TestGetClassByID(t *testing.T) {
 		{
 			name:    "Internal Server Error",
 			classID: class.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetClassByID(gomock.Any(), gomock.Eq(class.ID)).
@@ -189,6 +221,8 @@ func TestGetClassByID(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -196,16 +230,21 @@ func TestGetClassByID(t *testing.T) {
 }
 
 func TestGetClassByName(t *testing.T) {
+	user, _ := randomUser()
 	class := randomClass()
 	testCases := []struct {
 		name          string
 		className     string
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			className: class.Name,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetClassByName(gomock.Any(), gomock.Eq(class.Name)).
@@ -221,6 +260,9 @@ func TestGetClassByName(t *testing.T) {
 		{
 			name:      "Not found",
 			className: "xxxxx",
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetClassByName(gomock.Any(), gomock.Any()).
@@ -234,6 +276,9 @@ func TestGetClassByName(t *testing.T) {
 		{
 			name:      "Internal Server Error",
 			className: class.Name,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetClassByName(gomock.Any(), gomock.Eq(class.Name)).
@@ -247,6 +292,9 @@ func TestGetClassByName(t *testing.T) {
 		{
 			name:      "Empty name",
 			className: "",
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetClassByName(gomock.Any(), gomock.Eq("")).
@@ -274,6 +322,8 @@ func TestGetClassByName(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -281,17 +331,22 @@ func TestGetClassByName(t *testing.T) {
 }
 
 func TestDeleteClassByID(t *testing.T) {
+	user, _ := randomUser()
 	class := randomClass()
 
 	testCases := []struct {
 		name          string
 		classID       int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:    "OK",
 			classID: class.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -306,6 +361,9 @@ func TestDeleteClassByID(t *testing.T) {
 		{
 			name:    "Not found",
 			classID: class.ID + 1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -321,6 +379,9 @@ func TestDeleteClassByID(t *testing.T) {
 		{
 			name:    "Invalid ID",
 			classID: -1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -336,6 +397,9 @@ func TestDeleteClassByID(t *testing.T) {
 		{
 			name:    "Internal Server Error",
 			classID: class.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -368,6 +432,8 @@ func TestDeleteClassByID(t *testing.T) {
 			request, err := http.NewRequest(http.MethodDelete, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -375,6 +441,7 @@ func TestDeleteClassByID(t *testing.T) {
 }
 
 func TestListClasses(t *testing.T) {
+	user, _ := randomUser()
 	classes := make([]db.Class, 0)
 
 	for i := 0; i < 5; i++ {
@@ -385,6 +452,7 @@ func TestListClasses(t *testing.T) {
 		name          string
 		pageID        int32
 		pageSize      int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore, params db.ListClassesParams)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListClassesParams)
 	}{
@@ -392,6 +460,9 @@ func TestListClasses(t *testing.T) {
 			name:     "OK",
 			pageID:   1,
 			pageSize: 5,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListClassesParams) {
 
 				store.EXPECT().
@@ -421,6 +492,9 @@ func TestListClasses(t *testing.T) {
 			name:     "Invalid Page ID",
 			pageID:   0,
 			pageSize: 5,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListClassesParams) {
 
 				store.EXPECT().
@@ -435,6 +509,9 @@ func TestListClasses(t *testing.T) {
 			name:     "Invalid Page Size",
 			pageID:   1,
 			pageSize: 15,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListClassesParams) {
 
 				store.EXPECT().
@@ -449,6 +526,9 @@ func TestListClasses(t *testing.T) {
 			name:     "Internal Server Error",
 			pageID:   1,
 			pageSize: 5,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListClassesParams) {
 
 				store.EXPECT().
@@ -481,6 +561,8 @@ func TestListClasses(t *testing.T) {
 			url := fmt.Sprintf("/v1/all-classes?page_id=%d&page_size=%d", tc.pageID, tc.pageSize)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
+
+			tc.setupAuth(t, request, server.tokenMaker)
 
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder, params)

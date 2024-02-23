@@ -9,27 +9,34 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	mockdb "github.com/osobotu/school_mgs/db/mock"
 	db "github.com/osobotu/school_mgs/db/sqlc"
+	"github.com/osobotu/school_mgs/token"
 	"github.com/osobotu/school_mgs/utils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
 
 func TestGetSubjectByID(t *testing.T) {
+	user, _ := randomUser()
 	subject := randomSubject()
 
 	testCases := []struct {
 		name          string
 		subjectID     int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			subjectID: subject.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -45,6 +52,9 @@ func TestGetSubjectByID(t *testing.T) {
 		{
 			name:      "Not Found",
 			subjectID: subject.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -59,6 +69,9 @@ func TestGetSubjectByID(t *testing.T) {
 		{
 			name:      "Internal Server Error",
 			subjectID: subject.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -73,6 +86,9 @@ func TestGetSubjectByID(t *testing.T) {
 		{
 			name:      "Invalid ID",
 			subjectID: 0,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -103,6 +119,8 @@ func TestGetSubjectByID(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -111,11 +129,13 @@ func TestGetSubjectByID(t *testing.T) {
 }
 
 func TestCreateSubject(t *testing.T) {
+	user, _ := randomUser()
 	subject := randomSubject()
 
 	testCases := []struct {
 		name          string
 		body          gin.H
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
@@ -123,6 +143,9 @@ func TestCreateSubject(t *testing.T) {
 			name: "OK",
 			body: gin.H{
 				"name": subject.Name,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -138,6 +161,9 @@ func TestCreateSubject(t *testing.T) {
 		{
 			name: "Empty body",
 			body: gin.H{},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					CreateSubject(gomock.Any(), gomock.Any()).
@@ -152,6 +178,9 @@ func TestCreateSubject(t *testing.T) {
 			body: gin.H{
 				"subject_name": "test_invalid_name",
 			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					CreateSubject(gomock.Any(), gomock.Any()).
@@ -165,6 +194,9 @@ func TestCreateSubject(t *testing.T) {
 			name: "Internal Server Error",
 			body: gin.H{
 				"name": subject.Name,
+			},
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
 			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -216,6 +248,8 @@ func TestCreateSubject(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 
 			tc.checkResponse(t, recorder)
@@ -225,17 +259,22 @@ func TestCreateSubject(t *testing.T) {
 }
 
 func TestDeleteSubjectByID(t *testing.T) {
+	user, _ := randomUser()
 	subject := randomSubject()
 
 	testCases := []struct {
 		name          string
 		subjectID     int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			subjectID: subject.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -250,6 +289,9 @@ func TestDeleteSubjectByID(t *testing.T) {
 		{
 			name:      "Not found",
 			subjectID: subject.ID + 1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -265,6 +307,9 @@ func TestDeleteSubjectByID(t *testing.T) {
 		{
 			name:      "Invalid ID",
 			subjectID: -1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -280,6 +325,9 @@ func TestDeleteSubjectByID(t *testing.T) {
 		{
 			name:      "Internal Server Error",
 			subjectID: subject.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				// build stubs
 				store.EXPECT().
@@ -312,6 +360,8 @@ func TestDeleteSubjectByID(t *testing.T) {
 			request, err := http.NewRequest(http.MethodDelete, url, nil)
 			require.NoError(t, err)
 
+			tc.setupAuth(t, request, server.tokenMaker)
+
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
 		})
@@ -319,6 +369,7 @@ func TestDeleteSubjectByID(t *testing.T) {
 }
 
 func TestListSubjects(t *testing.T) {
+	user, _ := randomUser()
 	subjects := make([]db.Subject, 0)
 
 	for i := 0; i < 5; i++ {
@@ -329,6 +380,7 @@ func TestListSubjects(t *testing.T) {
 		name          string
 		pageID        int32
 		pageSize      int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore, params db.ListSubjectsParams)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder, params db.ListSubjectsParams)
 	}{
@@ -336,6 +388,9 @@ func TestListSubjects(t *testing.T) {
 			name:     "OK",
 			pageID:   1,
 			pageSize: 5,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListSubjectsParams) {
 
 				store.EXPECT().
@@ -365,6 +420,9 @@ func TestListSubjects(t *testing.T) {
 			name:     "Invalid Page ID",
 			pageID:   0,
 			pageSize: 5,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListSubjectsParams) {
 
 				store.EXPECT().
@@ -379,6 +437,9 @@ func TestListSubjects(t *testing.T) {
 			name:     "Invalid Page Size",
 			pageID:   1,
 			pageSize: 15,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListSubjectsParams) {
 
 				store.EXPECT().
@@ -393,6 +454,9 @@ func TestListSubjects(t *testing.T) {
 			name:     "Internal Server Error",
 			pageID:   1,
 			pageSize: 5,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore, params db.ListSubjectsParams) {
 
 				store.EXPECT().
@@ -425,6 +489,8 @@ func TestListSubjects(t *testing.T) {
 			url := fmt.Sprintf("/v1/subjects?page_id=%d&page_size=%d", tc.pageID, tc.pageSize)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
+
+			tc.setupAuth(t, request, server.tokenMaker)
 
 			server.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder, params)

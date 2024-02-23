@@ -6,9 +6,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	mockdb "github.com/osobotu/school_mgs/db/mock"
 	db "github.com/osobotu/school_mgs/db/sqlc"
+	"github.com/osobotu/school_mgs/token"
 	"github.com/osobotu/school_mgs/utils"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -76,17 +78,22 @@ import (
 // }
 
 func TestGetSessionByID(t *testing.T) {
+	user, _ := randomUser()
 	session := randomSession()
 
 	testCases := []struct {
 		name          string
 		sessionID     int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			sessionID: session.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetSessionByID(gomock.Any(), gomock.Eq(session.ID)).
@@ -100,6 +107,9 @@ func TestGetSessionByID(t *testing.T) {
 		{
 			name:      "Not Found",
 			sessionID: session.ID + 1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetSessionByID(gomock.Any(), gomock.Eq(session.ID+1)).
@@ -113,6 +123,9 @@ func TestGetSessionByID(t *testing.T) {
 		{
 			name:      "Invalid ID",
 			sessionID: -1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetSessionByID(gomock.Any(), gomock.Eq(-1)).
@@ -126,6 +139,9 @@ func TestGetSessionByID(t *testing.T) {
 		{
 			name:      "Internal server error",
 			sessionID: session.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetSessionByID(gomock.Any(), gomock.Eq(session.ID)).
@@ -156,22 +172,29 @@ func TestGetSessionByID(t *testing.T) {
 		request, err := http.NewRequest(http.MethodGet, url, nil)
 		require.NoError(t, err)
 
+		tc.setupAuth(t, request, server.tokenMaker)
+
 		server.router.ServeHTTP(recorder, request)
 		tc.checkResponse(t, recorder)
 	}
 }
 func TestDeleteSession(t *testing.T) {
+	user, _ := randomUser()
 	session := randomSession()
 
 	testCases := []struct {
 		name          string
 		sessionID     int32
+		setupAuth     func(t *testing.T, request *http.Request, tokenMaker token.Maker)
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(T *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			sessionID: session.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteSession(gomock.Any(), gomock.Eq(session.ID)).
@@ -185,6 +208,9 @@ func TestDeleteSession(t *testing.T) {
 		{
 			name:      "Not Found",
 			sessionID: session.ID + 1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteSession(gomock.Any(), gomock.Eq(session.ID+1)).
@@ -198,6 +224,9 @@ func TestDeleteSession(t *testing.T) {
 		{
 			name:      "Invalid ID",
 			sessionID: -1,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteSession(gomock.Any(), gomock.Eq(-1)).
@@ -211,6 +240,9 @@ func TestDeleteSession(t *testing.T) {
 		{
 			name:      "Internal server error",
 			sessionID: session.ID,
+			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, authorizationTypeBearer, user.Email, time.Minute)
+			},
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					DeleteSession(gomock.Any(), gomock.Eq(session.ID)).
@@ -240,6 +272,8 @@ func TestDeleteSession(t *testing.T) {
 		url := fmt.Sprintf("/v1/sessions/%d", tc.sessionID)
 		request, err := http.NewRequest(http.MethodDelete, url, nil)
 		require.NoError(t, err)
+
+		tc.setupAuth(t, request, server.tokenMaker)
 
 		server.router.ServeHTTP(recorder, request)
 		tc.checkResponse(t, recorder)
