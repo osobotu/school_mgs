@@ -13,6 +13,15 @@ CREATE TABLE "roles" (
   "role" varchar UNIQUE NOT NULL
 );
 
+INSERT INTO "roles" (role)
+VALUES ('admin');
+
+INSERT INTO "roles" (role)
+VALUES ('teacher');
+
+INSERT INTO "roles" (role)
+VALUES ('student');
+
 ALTER TABLE "users" ADD FOREIGN KEY ("role_id") REFERENCES "roles" ("id");
 
 ALTER TABLE "teachers" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
