@@ -14,7 +14,7 @@ dropdb:
 	docker exec -it postgres-school-mgs dropdb -U postgres school_mgs
 
 migrate_up:
-	igrate -path db/migrations -database "postgresql://postgres:password@localhost:5432/school_mgs?sslmode=disable" -verbose up
+	migrate -path db/migrations -database "postgresql://postgres:password@localhost:5432/school_mgs?sslmode=disable" -verbose up
 
 migrate_down:
 	migrate -path db/migrations -database "postgresql://postgres:password@localhost:5432/school_mgs?sslmode=disable" -verbose down
